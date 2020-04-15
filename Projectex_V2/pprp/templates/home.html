@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+{% block content %}
+
+	<h1><b>Home Page</b></h1>
+	<hr/>
+	<p> Two teams of SIUE students are working together with Pint Perfect to research draft line cleanliness.  An edgestar kegerator will be used for testing. To learn more about the company, <a href="/pintperfect"><b>Pint Perfect</b></a>; or the SIUE <a href="/biology"><b>Biology</b></a> and <a href="/engineering"><b>Engineering</b></a> students involved.  Visit their respective sections in the <b>About</b> tab. </p>
+	<p> If you wish to interact with the Automated Kegerator, involved parties must first create/login to an admin account and navigate to the <a href="/Kegerator_Controls"><b>Kegerator Controls</b></a> section.  This is for students involved in testing.  Those not involved will not have permission to interact with the kegerator.</p>
+	<p> Below are milestones and announcements regarding the website and the engineering project.</p>
+	<br>
+	<br>
+	{% for post in posts%}
+		<h4> {{ post.title }} </h1>
+		<a class="mr-2" href="#"> {{ post.author }} </a>
+		<small> {{ post.date_posted }} </small>
+		<p> {{ post.content }} </p>
+	{% endfor %}
+{% endblock content %}

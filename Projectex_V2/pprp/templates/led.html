@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+{% block content %}
+	<body>
+		<h1> <b>Turn LED On/Off</b> </h1>
+		<hr/>
+		<p> This section is a simple experiment that controls an LED attached to the raspberry pi. </p>
+      		<br/> 
+			<big> Pour 1 pint </big> <button><a href="/make_drink">POUR</a></button>
+		<br/>		 		    
+      		<div class="container">
+			<big> LED 1: </big> <button><a href="/led_a1">On</a></button>-----<button><a href="/led_a2">Off</a></button>
+		</div>
+		<div class="container">
+			<big> LED 2: </big> <button><a href="/led_b1">On</a></button>-----<button><a href="/led_b2">Off</a></button>
+		</div>
+		<div class="container">
+			<big> LED 3: </big> <button><a href="/led_c1">On</a></button>-----<button><a href="/led_c2">Off</a></button>
+		</div>
+		
+   	</body>
+{% endblock content %}

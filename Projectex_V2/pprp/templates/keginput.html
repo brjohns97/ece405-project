@@ -1,0 +1,59 @@
+{% extends "layout.html" %}
+{% block content %}
+
+	<h1> Kegerator Input </h1>
+
+	<div class="content-section">
+		<form method="POST" action="">
+			{{ form.hidden_tag() }}
+			<fieldset class="form-group">
+				<legend class="border-bottom mb-4">
+					Input Parameters to Kegerator
+				</legend>
+				<div class="row">
+					<div class="form-group col-md-4">
+						{{ form.start_date_sim.label(class="form-control-label") }}
+						{{ form.start_date_sim(class="form-control form-control-lg") }}
+					</div>
+					<div class="form-group">
+						{{ form.start_time_day.label(class="form-control-label") }}
+						{{ form.start_time_day(class="form-control form-control-lg") }}
+					</div>
+				</div>
+				<div class="row">
+					<div class="form-group col-md-4">
+						{{ form.end_date_sim.label(class="form-control-label") }}
+						{{ form.end_date_sim(class="form-control form-control-lg") }}
+					</div>
+					<div class="form-group">
+						{{ form.end_time_day.label(class="form-control-label") }}
+						{{ form.end_time_day(class="form-control form-control-lg") }}
+					</div>
+				</div>
+				<div class="form-group">
+						{{ form.number_of_drinks.label(class="form-control-label") }}
+						{{ form.number_of_drinks(class="form-control form-control-lg") }}
+				</div>
+				<div class="form-group">
+						{{ form.volume_of_keg.label(class="form-control-label") }}
+						{{ form.volume_of_keg(class="form-control form-control-lg") }}
+				</div>
+				<div class="form-group">
+						{{ form.pour_time.label(class="form-control-label") }}
+						{{ form.pour_time(class="form-control form-control-lg") }}
+				</div>
+				<!--<div class="form-group">
+						{{ form.test.label(class="form-control-label") }}
+						{{ form.test(class="form-control form-control-lg") }}
+				</div>-->
+			</fieldset>
+			<div class="form-group">
+				{{ form.submit(class="btn btn-outline-info") }}
+			</div>
+		</form>
+	</div>
+	<div>
+
+	</div>
+{% endblock content %}
+

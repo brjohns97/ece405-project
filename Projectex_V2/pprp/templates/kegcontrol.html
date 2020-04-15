@@ -1,0 +1,52 @@
+{% extends "layout.html" %}
+{% block content %}
+	<body>
+
+		<h2>Start Simulation Date    : {{ start_date_sim }}</h2>
+		<h2>End Simulation Date      : {{ end_date_sim }}</h2>
+		<h2>Start Time Each Day      : {{ start_time_day }}</h2>
+		<h2>End Time Each Day        : {{ end_time_day }}</h2>
+		<h2>Number of Drinks Each Day: {{ drinks }}</h2>
+		<h2>Initial Volume of Keg    : {{ volume }}</h2>
+		<h2>Pour Time Calibration    : {{ pour_time }}</h2>
+		<h2>Date and Time of start   : {{ test }}</h2>
+		<!-- Display the countdown timer in an element;-->
+		<h2 id="demo"></h2>
+		<h2 id="demo2"></h2>
+
+		<script>
+		//var x = 
+		setInterval(function() {
+			var countDownDate = new Date({{datetime_of_next_pour|tojson}})//.getTime();
+			countDownDate = new Date(countDownDate.getTime() + 60000*countDownDate.getTimezoneOffset())
+				// Get today's date and time
+		  var now = new Date()//.getTime();
+
+				// Find the distance between now and the count down date
+		  var distance = countDownDate - now;
+
+				// Time calculations for days, hours, minutes and seconds
+		  var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+		  var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+		  var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+		  var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+				// Display the result in the element with id="demo"
+		  document.getElementById("demo").innerHTML = days + "d " + hours + "h " + minutes + "m " + seconds + "s "
+		  //document.getElementById("demo").innerHTML = simulation_check//.getTime()
+		  document.getElementById("demo2").innerHTML = countDownDate//.getTime()
+
+				// If the count down is finished, write some text
+		  if ({{POURING|tojson}}==1) {
+			 // clearInterval(x);
+		    document.getElementById("demo").innerHTML = "POURING";
+		  }
+		  else if({{START_CHECK|tojson}}==0){
+		    document.getElementById("demo").innerHTML = "Simulation Not Started";
+		  }
+		}, 100);
+		</script>
+	</body>
+
+
+{% endblock content %}
