@@ -1,6 +1,7 @@
 #comment
 import RPi.GPIO as GPIO
 import time, sys
+import math
 GPIO.setmode(GPIO.BCM)
 inpt = 27
 GPIO.setup(inpt, GPIO.IN)
@@ -16,9 +17,9 @@ total_time = 0.0
 volume = 0
 
 print('Water Flow - Approximate')
+#print(math.ceil(math.pi/2))
 
 #GPIO.output(18, GPIO.HIGH)
-
 while True:
     pulses = 0
     pour_time = 0

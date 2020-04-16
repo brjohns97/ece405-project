@@ -163,12 +163,14 @@ def keginput():
         operations.keg_stuff['start_time_day'] =form.start_time_day.data
         operations.keg_stuff['end_time_day'] =form.end_time_day.data
         operations.keg_stuff['drinks'] =form.number_of_drinks.data
-        operations.keg_stuff['volume'] =form.volume_of_keg.data
+        operations.keg_stuff['volume_of_keg'] =form.volume_of_keg.data
+        operations.keg_stuff['volume_of_drink'] =form.volume_of_drink.data
         operations.keg_stuff['pour_time'] =form.pour_time.data
         #operations.keg_stuff['test'] =form.test.data
         
         operations.keg_stuff['start_datetime_day'] = datetime.datetime.combine(operations.keg_stuff['start_date_sim'],operations.keg_stuff['start_time_day'])
-        operations.keg_stuff['end_datetime_day'] = datetime.datetime.combine(operations.keg_stuff['start_date_sim'],operations.keg_stuff['end_time_day'])
+        operations.keg_stuff['end_of_start_datetime_day'] = datetime.datetime.combine(operations.keg_stuff['start_date_sim'],operations.keg_stuff['end_time_day'])
+        operations.keg_stuff['end_datetime_day'] = datetime.datetime.combine(operations.keg_stuff['end_date_sim'],operations.keg_stuff['end_time_day'])
 
         operations.set_variables_for_operation()
 
