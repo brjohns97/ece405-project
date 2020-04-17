@@ -1,37 +1,42 @@
 {% extends "layout.html" %}
 {% block content %}
+	<head>
+		<script>
+
+		</script>
+	</head>time
 	<body>
 		<style>
 			input[class=display-datetime] {
-			  width: 40%;
+			  width: 46%;
 			  padding: 0px 5px;
 			  box-sizing: border-box;
-			  font-size:25px;
+			  font-size:24px;
 			  color:black;
 			}
 			input[class=display-number] {
 			  width: 10%;
 			  padding: 0px 5px;
 			  box-sizing: border-box;
-			  font-size:25px;
+			  font-size:24px;
 			  color:black;
 			}
 			input[class=display-time] {
 			  width: 40%;
 			  padding: 0px 5px;
 			  box-sizing: border-box;
-			  font-size:25px;
+			  font-size:24px;
 			  color:black;
 			}
 			.output-format{
 				color: black;
-				font-size:25px;
+				font-size:24px;
 			}
 			
 		</style>
 		<br>
-		<div class="content-section">
-			<pre><span class="output-format">              Simulation will start in : </span><input class="display-datetime" id="sim-countdown" readonly="readonly"/></pre>
+		<div>
+			<pre><span class="output-format">              Simulation will start in : </span><input class="display-time" id="sim-countdown" readonly="readonly"/></pre>
 
 			<pre><span class="output-format">     Start date and time of Simulation : </span><input class="display-datetime" id="sim-start-datetime" readonly="readonly"/></pre>
 				
@@ -48,7 +53,7 @@
 			<br>
 			<br>
 				
-			<pre><span class="output-format">               Volume Remaining in Keg : <input class="display-number" id="keg-volume-remaining" readonly="readonly"/> out of <input class="display-number" id="keg-volume-total" readonly="readonly"/> = <a id="percent-keg-remaining"></a>%</span></pre>
+			<pre><span class="output-format">    Volume Remaining in Keg (in fl oz) : <input class="display-number" id="keg-volume-remaining" readonly="readonly"/> out of <input class="display-number" id="keg-volume-total" readonly="readonly"/> = <a id="percent-keg-remaining"></a>%</span></pre>
 			
 			<pre><span class="output-format">Estimated date and time Keg will empty : </span><input class="display-datetime" id="datetime-keg-empties" readonly="readonly"/></pre>
 			 
@@ -56,127 +61,188 @@
 	
 			<pre><span class="output-format">         Total Volume of Drinks Poured : <input class="display-number" id="drink-volume-poured" readonly="readonly"/> out of </span><input class="display-number" id="drink-volume-total" readonly="readonly"/></pre>
 		
-		
+			<pre><span class="output-format">                  Testing jQuery stuff : </span><input class="display-datetime" id="datetime_of_next_pour" readonly="readonly"/></pre>
+
+			<p id="START_CHECK"></p>
+			<p id="POURING"></p>
+
 		</div>
+		<h5>Disclaimer: May need to refresh page for some values to change</h5>
 		<br>
+
+
 		<script>
-			<!--static values-->
-			document.getElementById("sim-start-datetime").value = {{start_datetime_day|tojson}};
-			document.getElementById("sim-end-datetime").value = {{end_datetime_day|tojson}};
-			document.getElementById("keg-volume-total").value = {{volume_of_keg|tojson}};
-			document.getElementById("drinks-total").value = {{drinks|tojson}}*{{days_of_operation|tojson}};
-			document.getElementById("drink-volume-total").value = {{drinks|tojson}}*{{days_of_operation|tojson}}*{{volume_of_drink|tojson}};
-			document.getElementById("datetime-keg-empties").value = {{datetime_keg_empties|tojson}};
+			
+			// LIST OF FUNCTIONS
+			function formatAMPM(datetime) {
+				//var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Augt", "Sept", "Oct", "Nov", "Dec"];
+				var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+				var days = ["Sun", "Mon", "Tues", "Wed", "Thurs", "Fri", "Sat"];
 
-			<!--non-timer dynamic values-->
-			document.getElementById("keg-volume-remaining").value = {{volume_of_keg_remaining|tojson}};
-			document.getElementById("drinks-poured").value = {{drinks_poured|tojson}};
-			document.getElementById("drink-volume-poured").value = {{volume_of_drinks|tojson}};	
-			document.getElementById("percent-keg-remaining").innerHTML = ({{volume_of_keg_remaining|tojson}}/{{volume_of_keg|tojson}})*100	
-		</script>
-		
-		<script>
-		//var x = setInterval(function() {
-		function getTimeRemaining(endtime) {
+				var year = datetime.getFullYear();
+				var month = datetime.getMonth();
+				var date = datetime.getDate();
+				var day = datetime.getDay();
+				var hours = datetime.getHours();
+				var minutes = datetime.getMinutes();
+				
+				var ampm = hours >= 12 ? 'PM' : 'AM';
+				hours = hours % 12;
+				hours = hours ? hours : 12; // the hour '0' should be '12'
+				minutes = minutes < 10 ? '0'+minutes : minutes;
+				var strTime = days[day] + ', ' + months[month] + ' ' + date + ', ' + year + ' at ' + hours + ':' + minutes + ampm;
+				return strTime;
+			}
+
+			function getTimeRemainingOrElapsed(endtime,remainingorElapsed) {
+				// Remaining = 0, Elapsed = 1
 				// Find the distance between now and the count down date
-			var now = new Date()
-			var distance = endtime - now;
+				var now = new Date()
+				if(remainingorElapsed==0){
+					var distance = endtime - now;
+				}else{
+					var distance = now - endtime;
+				}
 				// Time calculations for days, hours, minutes and seconds
-			var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-			var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-			var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-			var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-		  return {
-			'total': distance,
-			'days': days,
-			'hours': hours,
-			'minutes': minutes,
-			'seconds': seconds
-		  };
-	  }
-		function getTimeElapsed(endtime) {
+				var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+				var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+				var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+				var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+				if(days>0){
+					var output = days + "days " + hours + "hrs " + minutes + "min " + seconds + "sec ";
+				}else if(hours>0){
+					var output = hours + "hrs " + minutes + "min " + seconds + "sec ";
+				}else if(minutes>0){
+					var output = minutes + "min " + seconds + "sec ";
+				}else{
+					var output = seconds + "sec ";
+				}
+				return {
+					'output':  output,
+					'total': distance,
+					'days': days,
+					'hours': hours,
+					'minutes': minutes,
+					'seconds': seconds
+				};
+			}
+			function convertDatetime(input) {
 				// Find the distance between now and the count down date
-			var now = new Date()
-			var distance = now - endtime;
-				// Time calculations for days, hours, minutes and seconds
-			var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-			var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-			var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-			var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-		  return {
-			'total': distance,
-			'days': days,
-			'hours': hours,
-			'minutes': minutes,
-			'seconds': seconds
-		  };
-	  }		  
-		setInterval(function() {
-			// import start date and time, then adjust for time-zone
-			var countDownToStart = new Date({{start_datetime_day|tojson}})
-			countDownToStart = new Date(countDownToStart.getTime() + 60000*countDownToStart.getTimezoneOffset())
+				var output = new Date(input)
+				output = new Date(output.getTime() + 60000*output.getTimezoneOffset())
+				return output;
+			}	
 			
-			// import next_pour date and time, then adjust for time-zone
-			var countDownToPour = new Date({{datetime_of_next_pour|tojson}})
-			countDownToPour = new Date(countDownToPour.getTime() + 60000*countDownToPour.getTimezoneOffset())
-
-			// import end date and time, then adjust for time-zone
-			var countDownToEnd = new Date({{end_datetime_day|tojson}})
-			countDownToEnd = new Date(countDownToEnd.getTime() + 60000*countDownToEnd.getTimezoneOffset())
-			
-			// calculate and return days, hours, minutes, and seconds
-			var sc_v = getTimeRemaining(countDownToStart);
-			var tunp_v = getTimeRemaining(countDownToPour);
-			var tue_v = getTimeRemaining(countDownToEnd);
-			var rt_v = getTimeElapsed(countDownToStart);
-			
-			// Display the result in the element with id=""
-			//document.getElementById("sim-countdown").value = sc_v.days + "days " + sc_v.hours + "hrs " + sc_v.minutes + "min " + sc_v.seconds + "sec "
-			//document.getElementById("time-until-next-pour").value = tunp_v.days + "days " + tunp_v.hours + "hrs " + tunp_v.minutes + "min " + tunp_v.seconds + "sec "
-			//document.getElementById("time-until-end").value = tue_v.days + "days " + tue_v.hours + "hrs " + tue_v.minutes + "min " + tue_v.seconds + "sec "
-			//document.getElementById("run-time").value = rt_v.days + "days " + rt_v.hours + "hrs " + rt_v.minutes + "min " + rt_v.seconds + "sec "
-
-			if (rt_v.total<0) {
-				document.getElementById("run-time").value = "Simulation Not Started";
+			// START OF PASSING VARIABLES
+			$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+			function update_checks_and_other() {
+				$.getJSON($SCRIPT_ROOT+"/_stuff",
+					function(data) {
+						document.getElementById("POURING").value = data.dynamic_values.POURING;
+						document.getElementById("START_CHECK").value = data.dynamic_values.START_CHECK;
+						document.getElementById("datetime_of_next_pour").value = data.dynamic_values.datetime_of_next_pour;	
+					});
+			}
+			setInterval(update_checks_and_other, 100);
+			if({{SCHEDULED_CHECK|tojson}}==1){
+				// static values
+				var simStartDatetime = convertDatetime({{ start_datetime_day|tojson }})
+				document.getElementById("sim-start-datetime").value = formatAMPM(simStartDatetime);
+				var simEndDatetime = convertDatetime({{ end_datetime_day|tojson }})
+				document.getElementById("sim-end-datetime").value = formatAMPM(simEndDatetime);
+				var emptyKegDatetime = convertDatetime({{ datetime_keg_empties|tojson }})
+				document.getElementById("datetime-keg-empties").value = formatAMPM(emptyKegDatetime);
+				
+				document.getElementById("keg-volume-total").value = {{volume_of_keg|tojson}};
+				document.getElementById("drinks-total").value = {{drinks|tojson}}*{{days_of_operation|tojson}};
+				document.getElementById("drink-volume-total").value = {{drinks|tojson}}*{{days_of_operation|tojson}}*{{volume_of_drink|tojson}};
+				
+				// Update values without refreshing page
+				// non-timer dynamic values
+				$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+				function update_liquids() {
+					$.getJSON($SCRIPT_ROOT+"/_stuff",
+						function(data) {
+							document.getElementById("keg-volume-remaining").value = Math.round(data.dynamic_values.volume_of_keg_remaining*10)/10;
+							document.getElementById("drinks-poured").value = data.dynamic_values.drinks_poured;
+							document.getElementById("drink-volume-poured").value = Math.round(data.dynamic_values.volume_of_drinks*10)/10;	
+							document.getElementById("percent-keg-remaining").innerHTML = Math.round((data.dynamic_values.volume_of_keg_remaining/data.dynamic_values.volume_of_keg)*10000)/100;
+						});
+				}
+				setInterval(update_liquids, 100);
+				/*/ non-timer dynamic values
+				document.getElementById("keg-volume-remaining").value = Math.round({{volume_of_keg_remaining|tojson}}*10)/10;
+				document.getElementById("drinks-poured").value = {{drinks_poured|tojson}};
+				document.getElementById("drink-volume-poured").value = Math.round({{volume_of_drinks|tojson}}*10)/10;	
+				document.getElementById("percent-keg-remaining").innerHTML = Math.round(({{volume_of_keg_remaining|tojson}}/{{volume_of_keg|tojson}})*10000)/100;*/
 			}else{
-				document.getElementById("run-time").value = rt_v.days + "days " + rt_v.hours + "hrs " + rt_v.minutes + "min " + rt_v.seconds + "sec "
-			}//maybe make this pause when simulation stops
-			
-			if (rt_v.total<0) {
-				document.getElementById("time-until-end").value = "Simulation Not Started";
-			}else if(tue_v.total>=0){
-				document.getElementById("time-until-end").value = tue_v.days + "days " + tue_v.hours + "hrs " + tue_v.minutes + "min " + tue_v.seconds + "sec "
-			}else{
-				document.getElementById("time-until-end").value = "Simulation Has Ended"
-			}
-			
-			if (rt_v.total<0) {
-				document.getElementById("sim-countdown").value = "Simulation Not Started";
-			}else if(sc_v.t>=0){
-				document.getElementById("sim-countdown").value = sc_v.days + "days " + sc_v.hours + "hrs " + sc_v.minutes + "min " + sc_v.seconds + "sec "
-			}
-			else{
-				document.getElementById("sim-countdown").value = "Simulation Started";
+				// static values
+				document.getElementById("sim-start-datetime").value = "Simulation Not Scheduled";
+				document.getElementById("sim-end-datetime").value = "Simulation Not Scheduled";
+				document.getElementById("keg-volume-total").value = "N/A";
+				document.getElementById("drinks-total").value = "N/A";
+				document.getElementById("drink-volume-total").value = "N/A";
+				document.getElementById("datetime-keg-empties").value = "Simulation Not Scheduled";
+
+				// non-timer dynamic values
+				document.getElementById("keg-volume-remaining").value = "N/A";
+				document.getElementById("drinks-poured").value = "N/A";
+				document.getElementById("drink-volume-poured").value = "N/A";	
+				document.getElementById("percent-keg-remaining").innerHTML = "N/A";
 			}
 
-			if (rt_v.total<0) {
-				document.getElementById("time-until-next-pour").value = "Simulation Not Started";
-			}else if(tue_v.total<=0){
-				document.getElementById("time-until-next-pour").value = "Simulation Has Ended";
-			}else if({{POURING|tojson}}==0){
-				document.getElementById("time-until-next-pour").value = tunp_v.days + "days " + tunp_v.hours + "hrs " + tunp_v.minutes + "min " + tunp_v.seconds + "sec "
-			}
-			else if({{POURING|tojson}}==1){
-				document.getElementById("time-until-next-pour").value = "POURING";
-			}
-								
-			// If the count down is finished, write some text
-			if ({{POURING|tojson}}==1) {
-				 // clearInterval(x);
-				document.getElementById("time-until-next-pour").value = "POURING";
-			}
+			// TIMER FUNCTION
+			setInterval(function() {
+				//update_values()
+				// import start date and time, then adjust for time-zone
+				var countDownToStart = convertDatetime({{ start_datetime_day|tojson }})
+				var countDownToPour = convertDatetime(document.getElementById("datetime_of_next_pour").value)
+				var countDownToEnd = convertDatetime({{ end_datetime_day|tojson }})
+						//document.getElementById("POURING").value = data.dynamic_values.POURING;
+						//document.getElementById("START_CHECK").value = data.dynamic_values.START_CHECK;
+						//document.getElementById("datetime_of_next_pour").value = data.dynamic_values.datetime_of_next_pour;
+				// calculate and return days, hours, minutes, and seconds
+				var sc_v = getTimeRemainingOrElapsed(countDownToStart,0);
+				var tunp_v = getTimeRemainingOrElapsed(countDownToPour,0);
+				var tue_v = getTimeRemainingOrElapsed(countDownToEnd,0);
+				var rt_v = getTimeRemainingOrElapsed(countDownToStart,1);
 
-		}, 50);
+				if (document.getElementById("START_CHECK").value==0) {
+					document.getElementById("run-time").value = "Simulation Not Started";
+				}else{
+					document.getElementById("run-time").value = rt_v.output;
+				}//maybe make this pause when simulation stops
+				
+				if ({{SCHEDULED_CHECK|tojson}}==0) {
+					document.getElementById("time-until-end").value = "Simulation Not Scheduled";
+				}else if(tue_v.total>=0){
+					document.getElementById("time-until-end").value = tue_v.output
+				}else{
+					document.getElementById("time-until-end").value = "Simulation Has Ended"
+				}
+				
+				if ({{SCHEDULED_CHECK|tojson}}==0) {
+					document.getElementById("sim-countdown").value = "Simulation Not Scheduled";
+				}else if(document.getElementById("START_CHECK").value==0){
+					document.getElementById("sim-countdown").value = sc_v.output;
+				}
+				else{
+					document.getElementById("sim-countdown").value = "Simulation Started";
+				}
+
+				if ({{SCHEDULED_CHECK|tojson}}==0) {
+					document.getElementById("time-until-next-pour").value = "Simulation Not Scheduled";
+				}else if(tue_v.total<=0){
+					document.getElementById("time-until-next-pour").value = "Simulation Has Ended";
+				}else if(document.getElementById("POURING").value==0){
+					document.getElementById("time-until-next-pour").value = tunp_v.output;
+				}
+				else if(document.getElementById("POURING").value==1){
+					document.getElementById("time-until-next-pour").value = "POURING";
+				}
+
+
+			}, 100);
 		</script>
 	</body>
 

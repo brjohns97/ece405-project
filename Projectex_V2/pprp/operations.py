@@ -3,6 +3,7 @@ import threading
 import time
 import math
 import RPi.GPIO as GPIO
+import routes
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(18, GPIO.OUT)
@@ -26,6 +27,7 @@ keg_stuff = {
         'time_between_start_of_drinks': 0,
         'time_until_next_pour': 0 ,
         'POURING': 0,
+        'SCHEDULED_CHECK': 0,
         'START_CHECK': 0,
         'drinks_poured': 0,
         'day': 1,
@@ -39,6 +41,7 @@ keg_stuff = {
 #volume_of_drink = Q*pour_time	#16 ounces = 0.473176 liters
 
 def start_simulation():
+	keg_stuff['START_CHECK'] = 1
 	threading.Timer(keg_stuff['time_until_next_pour'], pour_drink).start()
 	#threading.Timer((keg_stuff['time_until_next_pour']+keg_stuff['pour_time']), stop_pour).start()
 	
@@ -102,12 +105,8 @@ def pour_drink():
 		reset_variables() #dont reset variables here, do it at the beginnning of submit validation
 
 
-
-		
-
-
 def set_variables_for_operation():
-	keg_stuff['START_CHECK'] = 1
+	keg_stuff['SCHEDULED_CHECK'] = 1
 
 	end_of_day_start_datetime = datetime.datetime.combine(keg_stuff['start_date_sim'],datetime.time(23,59,59))	#this is the start date with a start time of 12AM slapped onto it
 	start_of_day_start_datetime = datetime.datetime.combine(keg_stuff['start_date_sim'],datetime.time(0,0,0))	#this is the start date with a start time of 11:59PM slapped onto it
@@ -126,7 +125,7 @@ def set_variables_for_operation():
 	drinks_until_keg_empties = math.ceil(keg_stuff['volume_of_keg']/keg_stuff['volume_of_drink'])
 	day_keg_will_empty = math.floor((drinks_until_keg_empties-1)/(keg_stuff['drinks']))
 	drink_number_keg_will_empty = ((drinks_until_keg_empties/(keg_stuff['drinks']))-day_keg_will_empty)*(keg_stuff['drinks'])
-	keg_stuff['datetime_keg_empties'] = keg_stuff['datetime_of_next_pour']+datetime.timedelta(days=day_keg_will_empty, seconds=(keg_stuff['time_between_start_of_drinks']*drink_number_keg_will_empty))
+	keg_stuff['datetime_keg_empties'] = keg_stuff['datetime_of_next_pour']+datetime.timedelta(days=day_keg_will_empty, seconds=(keg_stuff['time_between_start_of_drinks']*(drink_number_keg_will_empty-1)))
     
 	
 def stop_pour():

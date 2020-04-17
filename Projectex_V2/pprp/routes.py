@@ -1,21 +1,14 @@
-from flask import render_template, url_for, request, flash, redirect, Flask, request
+from flask import render_template, url_for, request, flash, redirect, Flask, request, jsonify
 from pprp import app, db#, bcrypt
 import requests
 from pprp.forms import RegistrationForm, LoginForm, KegeratorForm
 from pprp.models import User, Post, Keg
 import datetime
 import operations
-from BeautifulSoup import BeautifulSoup
 import threading
 
 import RPi.GPIO as GPIO
 import time
-
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(18, GPIO.OUT)
-GPIO.setup(23, GPIO.OUT)
-GPIO.setup(24, GPIO.OUT)
-GPIO.setup(13, GPIO.IN)
 
 
 posts = [
@@ -146,8 +139,6 @@ def biology():
 def about():
     return render_template('about.html')
 
-
-
 @app.route("/Kegerator_Controls")#, methods=['POST'])
 def kegcontrol():
     #dim date
@@ -166,7 +157,7 @@ def keginput():
         operations.keg_stuff['volume_of_keg'] =form.volume_of_keg.data
         operations.keg_stuff['volume_of_drink'] =form.volume_of_drink.data
         operations.keg_stuff['pour_time'] =form.pour_time.data
-        #operations.keg_stuff['test'] =form.test.data
+        operations.keg_stuff['volume_of_keg_remaining'] =form.volume_of_keg.data
         
         operations.keg_stuff['start_datetime_day'] = datetime.datetime.combine(operations.keg_stuff['start_date_sim'],operations.keg_stuff['start_time_day'])
         operations.keg_stuff['end_of_start_datetime_day'] = datetime.datetime.combine(operations.keg_stuff['start_date_sim'],operations.keg_stuff['end_time_day'])
@@ -223,6 +214,30 @@ def login():
         else:
             flash('Login Unsuccessful', 'danger')
     return render_template('login.html', form=form)
+
+
+@app.route('/_stuff', methods= ['GET'])
+def stuff():
+    #var = time.time()
+    dynamic_values = {
+            'time_until_next_pour': operations.keg_stuff['time_until_next_pour'],
+            'POURING': operations.keg_stuff['POURING'],
+            'START_CHECK': operations.keg_stuff['START_CHECK'],
+            'drinks_poured': operations.keg_stuff['drinks_poured'],
+            'day': operations.keg_stuff['day'],
+            'volume_of_drinks': operations.keg_stuff['volume_of_drinks'],
+            'volume_of_keg_remaining': operations.keg_stuff['volume_of_keg_remaining'],
+            'volume_of_keg': operations.keg_stuff['volume_of_keg'],                  # not dynamic but needed for calculations
+            'datetime_of_next_pour': operations.keg_stuff['datetime_of_next_pour']
+    }
+    #time = time.time()
+    return jsonify(dynamic_values=dynamic_values)
+
+
+
+
+
+
 
 
 
