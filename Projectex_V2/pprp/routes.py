@@ -1,10 +1,10 @@
 from flask import render_template, url_for, request, flash, redirect, Flask, request, jsonify
 from pprp import app, db#, bcrypt
 import requests
-from pprp.forms import RegistrationForm, LoginForm, KegeratorForm
+from pprp.forms import RegistrationForm, LoginForm, KegeratorForm, PassMCForm, PassACForm
 from pprp.models import User, Post, Keg
 import datetime
-import operations
+from pprp import operations
 import threading
 
 import RPi.GPIO as GPIO
@@ -31,25 +31,67 @@ posts = [
         'date_posted': 'March 19, 2020'
     },
     {
-        'author': 'Stephen Spade',
+        'author': 'Brad Johnson',
+        'title': 'User Input',
+        'content': 'The website now successfully takes user input for specifying the parameters for the automation simulation',
+        'date_posted': 'April ?, 2020'
+    },
+    {
+        'author': 'Brad Johnson',
         'title': 'Project Code Implemented in Website',
         'content': 'The website now successfully implements the code needed for providing a bar-like environment for the kegerator',
-        'date_posted': 'tbd'
+        'date_posted': 'April 11, 2020'
+    },
+    {
+        'author': 'Brad Johnson',
+        'title': 'Simulation Statistics',
+        'content': 'The website now displays the relevant information regarding the simulation and displays it to the user',
+        'date_posted': 'April 16, 2020'
     },
     {
         'author': 'Stephen Spade',
+        'title': 'Password Protection & Website Design Update',
+        'content': 'Accessing the kegerator controls requires a password to be input & Website has been polished',
+        'date_posted': 'April 17, 2020'
+    },
+    {
+        'author': 'tbd',
+        'title': 'About the Engineering Team',
+        'content': 'The about section for the engineering team has been filled out with some relevant information, such as who is on the team and what roles they play in the project.',
+        'date_posted': 'tbd'
+    },
+    {
+        'author': 'tbd',
+        'title': 'About the Biology Team',
+        'content': 'The about section for the biology team has been filled out with some relevant information, such as who is on the team and what roles they play in the project.',
+        'date_posted': 'tbd'
+    },
+    {
+        'author': 'tbd',
+        'title': 'About Pint Perfect',
+        'content': 'The about section for Pint Perfect has been filled out with some relevant information, such as who Pint Perfect is and what role they play in the project.',
+        'date_posted': 'tbd'
+    },
+    {
+        'author': 'tbd',
+        'title': 'About the Hardware',
+        'content': 'The about section for the hardware has been filled out with some relevant information, such as what hardware was used for the project and what each part does.',
+        'date_posted': 'tbd'
+    },
+    {
+        'author': 'tbd',
+        'title': 'About the Website',
+        'content': 'The about section for the website has been filled out with some relevant information, like how to use it ',
+        'date_posted': 'tbd'
+    },
+    {
+        'author': 'tbd',
         'title': 'User Login',
-        'content': 'Now users must be logged in to an admin account in order to interact with the kegerator controls.  Users that are not logged in can still view other sections of the website.',
+        'content': 'Instead of a static password protected webpage, now users must be logged in to an admin account in order to interact with the kegerator controls.  Users that are not logged in can still view other sections of the website.',
         'date_posted': 'tbd'
-    },
+    },  
     {
-        'author': 'Stephen Spade',
-        'title': 'About Sections',
-        'content': 'The about sections of the website are filled out with relevant information regarding Pint Perfect, the biology research team, and the engineering team. This includes how each party is involved, who is in each group, and what roles they play in the project.',
-        'date_posted': 'tbd'
-    },
-    {
-        'author': 'Stephen Spade',
+        'author': 'tbd',
         'title': 'Website hosted on the internet',
         'content': 'Website has been changed from running on a local network to being accessible from anyone on the internet',
         'date_posted': 'tbd'
@@ -64,44 +106,44 @@ def home():
 
 
 
-@app.route("/led")
-def led():
-    return render_template('led.html')
+@app.route("/mc")
+def mc():
+    return render_template('mc.html')
 
-@app.route("/led_a1")
-def led_a1():
+@app.route("/mc_a_on")
+def mc_a_on():
     GPIO.output(18, GPIO.HIGH)
-    return render_template('led.html')
+    return render_template('mc.html')
 
-@app.route("/led_a2")
-def led_a2():
+@app.route("/mc_a_off")
+def mc_a_off():
     GPIO.output(18, GPIO.LOW)
-    return render_template('led.html')
+    return render_template('mc.html')
 
-@app.route("/led_b1")
-def led_b1():
+@app.route("/mc_b_on")
+def mc_b_on():
     GPIO.output(23, GPIO.HIGH)
-    return render_template('led.html')
+    return render_template('mc.html')
 
-@app.route("/led_b2")
-def led_b2():
+@app.route("/mc_b_off")
+def mc_b_off():
     GPIO.output(23, GPIO.LOW)
-    return render_template('led.html')
+    return render_template('mc.html')
 
-@app.route("/led_c1")
-def led_c1():
+@app.route("/mc_c_on")
+def mc_c_on():
     GPIO.output(24, GPIO.HIGH)
-    return render_template('led.html')
+    return render_template('mc.html')
 
-@app.route("/led_c2")
-def led_c2():
+@app.route("/mc_c_off")
+def mc_c_off():
     GPIO.output(24, GPIO.LOW)
-    return render_template('led.html')
+    return render_template('mc.html')
 
 @app.route("/make_drink")
 def make_drink():
     threading.Timer(0, operations.pour_drink).start()
-    return render_template('led.html')
+    return render_template('mc.html')
 
 
 
@@ -139,14 +181,14 @@ def biology():
 def about():
     return render_template('about.html')
 
-@app.route("/Kegerator_Controls")#, methods=['POST'])
-def kegcontrol():
+@app.route("/simulation")#, methods=['POST'])
+def simulation():
     #dim date
     #date = request.form.get("start_date")
-    return render_template('kegcontrol.html', **operations.keg_stuff)
+    return render_template('sim.html', **operations.keg_stuff)
 
-@app.route("/keginput", methods=['GET', 'POST'])
-def keginput():
+@app.route("/ac", methods=['GET', 'POST'])
+def ac():
     form = KegeratorForm()
     if form.validate_on_submit():
         operations.keg_stuff['start_date_sim'] =form.start_date_sim.data
@@ -178,7 +220,7 @@ def keginput():
             flash('ERROR: End Date must be after Start Date','danger')
         elif (form.start_date_sim.data==form.end_date_sim.data and form.start_time_day.data>=form.end_time_day.data):
             flash('ERROR: End Date and Time must be after Start Date and Time','danger')
-        elif(form.start_date_sim.data<datetime.date.today()):	#if time is impossible relative to todays dates
+        elif(form.start_date_sim.data<datetime.date.today()):   #if time is impossible relative to todays dates
             flash('ERROR: Start Date must be current day or later','danger')
         elif(form.start_date_sim.data==datetime.date.today() and form.start_time_day.data<=datetime.datetime.now().time()): #if time is impossible relative to todays time and date
             flash('ERROR: Start Date and Time must be current date and time or later','danger')
@@ -187,7 +229,7 @@ def keginput():
         if (form.pour_time.data < 0):
             flash('ERROR: Invalid Pour Time Calibration','danger')
 
-    return render_template('keginput.html', form=form)
+    return render_template('ac.html', form=form)
 
 
 @app.route("/register", methods=['GET', 'POST'])
@@ -201,7 +243,6 @@ def register():
         flash('Account created for %s! You can now log in'%(form.username.data),'success')
         return redirect(url_for('login'))
     return render_template('register.html', form=form)
-
 
 
 @app.route("/login", methods=['GET', 'POST'])
@@ -234,10 +275,26 @@ def stuff():
     return jsonify(dynamic_values=dynamic_values)
 
 
+@app.route("/PassMC", methods=['GET', 'POST'])
+def PassMC():
+    form = PassMCForm()
+    if form.validate_on_submit():
+        if form.password.data == 'dixon':
+            flash('Correct Password, redirecting...', 'success')
+            return redirect(url_for('mc'))
+        else:
+            flash('Incorrect Password', 'danger')
+    return render_template('password_mc.html', form=form)
 
 
-
-
-
-
+@app.route("/PassAC", methods=['GET', 'POST'])
+def PassAC():
+    form = PassACForm()
+    if form.validate_on_submit():
+        if form.password.data == 'dixon':
+            flash('Correct Password, redirecting...', 'success')
+            return redirect(url_for('ac'))
+        else:
+            flash('Incorrect Password', 'danger')
+    return render_template('password_ac.html', form=form)
 

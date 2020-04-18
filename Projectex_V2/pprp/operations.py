@@ -3,7 +3,6 @@ import threading
 import time
 import math
 import RPi.GPIO as GPIO
-import routes
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(18, GPIO.OUT)

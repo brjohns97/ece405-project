@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+{% block content %}
+	<body>
+		<h1> <b>Manual Control</b> </h1>
+		<hr/>
+		<p> This section provides manual control of the raspberry pi's GPIO pins.  These controls are used for testing the solenoid valves as well as for overiding the system and manually opening/closing valves remotely, should the automation fail.</p>
+      		<br/> 
+		<br/>		 		    
+      		<div class="container">
+			<big> Valve 1 (GPIO 18): </big> <a href="/mc_a_on"> <button> Open </button> </a> ----- <a href="/mc_a_off"> <button> Close </button> </a>
+		</div>
+		<br/>
+		<div class="container">
+			<big> Valve 2 (GPIO 23): </big> <a href="/mc_b_on"> <button> Open </button> </a> ----- <a href="/mc_b_off"> <button> Close </button> </a>
+		</div>
+		<br/>
+		<div class="container">
+			<big> Valve 3 (GPIO 24): </big> <a href="/mc_c_on"> <button> Open </button> </a> ----- <a href="/mc_c_off"> <button> Close </button> </a>
+		</div>
+		<br/>
+		<br/>
+		<br/>
+             	
+		
+   	</body>
+{% endblock content %}

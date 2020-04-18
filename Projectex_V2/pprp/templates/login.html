@@ -2,13 +2,16 @@
 {% block content %}
 
 	<h1> Login </h1>
-
+	<hr/>
+	<p> Disclaimer: currently under development and is not fully functional </p>
+	<br/>
+	<br/>
 	<div class="content-section">
 		<form method="POST" action="">
 			{{ form.hidden_tag() }}
 			<fieldset class="form-group">
 				<legend class="border-bottom mb-4">
-					Log in
+					Enter Existing User Information
 				</legend>
 				<div class="form-group">
 					{{ form.username.label(class="form-control-label") }}
