@@ -6,8 +6,7 @@
 	<hr/>
 	<p> This section allows the user to input the parameters for the automated kegerator simulation </p>
 	<br/>
-	<br/>
-	<div class="content-section">
+	<div id="ac_approved" class="content-section" style ="display: none;">
 		<form method="POST" action="">
 			{{ form.hidden_tag() }}
 			<fieldset class="form-group">
@@ -59,5 +58,10 @@
 	<div>
 	<br>
 	</div>
+	<script>
+		if(2==1){
+			document.getElementById("ac_approved").style = "block;"
+		}
+	</script>
 {% endblock content %}
 

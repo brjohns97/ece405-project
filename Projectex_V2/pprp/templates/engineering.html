@@ -1,37 +1,23 @@
-<!DOCTYPE html>
+{% extends "layout.html" %}
+{% block content %}
+	<script src="static/app.js"></script>
 
-<html>
+	<h1> <b>Engineering Page</b> </h1>
+	<hr/>
 
-	<head>
-		<title>Suggestions</title>
-	</head>
+	<p id = "yeet"> 
+		This section contains information regarding the Engineers.
+	</p>
+	<p id = "yeet2"> 
+		This section gggg.
+	</p>
+	<script>
+		var qwer = 1
+		if(qwer==1){
+			document.getElementById("yeet").innerHTML = "this section ig ggg"
+		}
+	</script>	
 
-	<body>
+{% endblock content %}
 
-		Search: <input type="text" id="search_form_input"></input>
 
-		<div id="place_for_suggestions"></div>
-
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-
-		<script>
-		$("#search_form_input").keyup(function(){
-			var text = $(this).val();
-
-			$.ajax({
-			  url: "/biology",
-			  type: "get",
-			  data: {jsdata: text},
-			  success: function(response) {
-				$("#place_for_suggestions").html(response);
-			  },
-			  error: function(xhr) {
-				//Do Something to handle error
-			  }
-			});
-		});
-		</script>
-
-	</body>
-
-</html>

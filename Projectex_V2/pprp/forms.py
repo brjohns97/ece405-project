@@ -33,9 +33,9 @@ class KegeratorForm(FlaskForm):
     test = DateTimeField('Start Date and Time of Simulation')
     submit = SubmitField('Submit')
 
-    def __init__(self, *args, **kwargs):
+    #def __init__(self, *args, **kwargs):
             #FlaskForm.__init__(self, *args, **kwargs)
-            super(KegeratorForm, self).__init__(*args, **kwargs)
+            #super(KegeratorForm, self).__init__(*args, **kwargs)
             #self.start_date_sim.data = datetime.date.today()
             #self.end_date_sim.data = datetime.date.today()
             #self.start_time_day.data = datetime.datetime.now().time()

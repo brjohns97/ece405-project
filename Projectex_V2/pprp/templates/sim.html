@@ -69,7 +69,6 @@
 			<p id="POURING"></p>
 
 		</div>
-		<h5>Disclaimer: May need to refresh page for some values to change</h5>
 		<br>
 
 
@@ -96,15 +95,9 @@
 				return strTime;
 			}
 
-			function getTimeRemainingOrElapsed(endtime,remainingorElapsed) {
-				// Remaining = 0, Elapsed = 1
+			function getTimeRemainingOrElapsed(endtime,starttime) {
 				// Find the distance between now and the count down date
-				var now = new Date()
-				if(remainingorElapsed==0){
-					var distance = endtime - now;
-				}else{
-					var distance = now - endtime;
-				}
+				var distance = endtime - starttime;
 				// Time calculations for days, hours, minutes and seconds
 				var days = Math.floor(distance / (1000 * 60 * 60 * 24));
 				var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -200,20 +193,22 @@
 				var countDownToStart = convertDatetime({{ start_datetime_day|tojson }})
 				var countDownToPour = convertDatetime(document.getElementById("datetime_of_next_pour").value)
 				var countDownToEnd = convertDatetime({{ end_datetime_day|tojson }})
-						//document.getElementById("POURING").value = data.dynamic_values.POURING;
-						//document.getElementById("START_CHECK").value = data.dynamic_values.START_CHECK;
-						//document.getElementById("datetime_of_next_pour").value = data.dynamic_values.datetime_of_next_pour;
-				// calculate and return days, hours, minutes, and seconds
-				var sc_v = getTimeRemainingOrElapsed(countDownToStart,0);
-				var tunp_v = getTimeRemainingOrElapsed(countDownToPour,0);
-				var tue_v = getTimeRemainingOrElapsed(countDownToEnd,0);
-				var rt_v = getTimeRemainingOrElapsed(countDownToStart,1);
 
+				// calculate and return days, hours, minutes, and seconds
+				var now = new Date()
+				var sc_v = getTimeRemainingOrElapsed(countDownToStart,now);
+				var tunp_v = getTimeRemainingOrElapsed(countDownToPour,now);
+				var tue_v = getTimeRemainingOrElapsed(countDownToEnd,now);
+				var rt_v = getTimeRemainingOrElapsed(now,countDownToStart);
+				
 				if (document.getElementById("START_CHECK").value==0) {
 					document.getElementById("run-time").value = "Simulation Not Started";
-				}else{
+				}else if(tue_v.total>0){
 					document.getElementById("run-time").value = rt_v.output;
-				}//maybe make this pause when simulation stops
+				}else{
+					var last_runtime = getTimeRemainingOrElapsed(countDownToEnd,countDownToStart);
+					document.getElementById("run-time").value = last_runtime.output
+				}
 				
 				if ({{SCHEDULED_CHECK|tojson}}==0) {
 					document.getElementById("time-until-end").value = "Simulation Not Scheduled";
@@ -228,7 +223,9 @@
 				}else if(document.getElementById("START_CHECK").value==0){
 					document.getElementById("sim-countdown").value = sc_v.output;
 				}
-				else{
+				else if(tue_v.total<=0){
+					document.getElementById("sim-countdown").value = "Simulation Has Ended";
+				}else{
 					document.getElementById("sim-countdown").value = "Simulation Started";
 				}
 
@@ -237,7 +234,11 @@
 				}else if(tue_v.total<=0){
 					document.getElementById("time-until-next-pour").value = "Simulation Has Ended";
 				}else if(document.getElementById("POURING").value==0){
-					document.getElementById("time-until-next-pour").value = tunp_v.output;
+					if(document.getElementById("drinks-poured").value==document.getElementById("drinks-total").value){
+						document.getElementById("time-until-next-pour").value = "All drinks poured";
+					}else{
+						document.getElementById("time-until-next-pour").value = tunp_v.output;
+					}
 				}
 				else if(document.getElementById("POURING").value==1){
 					document.getElementById("time-until-next-pour").value = "POURING";

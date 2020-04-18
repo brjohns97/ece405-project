@@ -191,6 +191,7 @@ def simulation():
 def ac():
     form = KegeratorForm()
     if form.validate_on_submit():
+        operations.reset_variables()
         operations.keg_stuff['start_date_sim'] =form.start_date_sim.data
         operations.keg_stuff['end_date_sim'] =form.end_date_sim.data
         operations.keg_stuff['start_time_day'] =form.start_time_day.data
@@ -214,7 +215,7 @@ def ac():
         #db.session.add(keg)
         #db.session.commit()
         flash('Input has been uploaded to Automated Kegerator','success')
-        return redirect(url_for('keginput'))
+        return redirect(url_for('ac'))
     elif request.method == 'POST':
         if (form.start_date_sim.data>form.end_date_sim.data):
             flash('ERROR: End Date must be after Start Date','danger')
@@ -297,4 +298,12 @@ def PassAC():
         else:
             flash('Incorrect Password', 'danger')
     return render_template('password_ac.html', form=form)
+
+
+
+
+
+
+
+
 
