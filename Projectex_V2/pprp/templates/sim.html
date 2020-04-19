@@ -1,10 +1,6 @@
 {% extends "layout.html" %}
 {% block content %}
-	<head>
-		<script>
 
-		</script>
-	</head>
 	<body>
 		<style>
 			input[class=display-datetime] {
@@ -38,42 +34,43 @@
 		<h1> <b>Simulation Statistics</b> </h1>
 		<hr/>
 		<div>
-			<pre><span class="output-format">              Simulation will start in : </span><input class="display-time" id="sim-countdown" readonly="readonly"/></pre>
+			<pre><span class="output-format">                Simulation will start in : </span><input class="display-time" id="sim-countdown" readonly="readonly"/></pre>
 
-			<pre><span class="output-format">     Start date and time of Simulation : </span><input class="display-datetime" id="sim-start-datetime" readonly="readonly"/></pre>
+			<pre><span class="output-format">       Start date and time of Simulation : </span><input class="display-datetime" id="sim-start-datetime" readonly="readonly"/></pre>
 				
-			<pre><span class="output-format">       End date and time of Simulation : </span><input class="display-datetime" id="sim-end-datetime" readonly="readonly"/></pre>
+			<pre><span class="output-format">         End date and time of Simulation : </span><input class="display-datetime" id="sim-end-datetime" readonly="readonly"/></pre>
 			<br>
 			<br>
 			
-			<pre><span class="output-format">                    Total Time Elapsed : </span><input class="display-time" id="run-time" readonly="readonly"/></pre>
+			<pre><span class="output-format">                      Total Time Elapsed : </span><input class="display-time" id="run-time" readonly="readonly"/></pre>
 			
-			<pre><span class="output-format">            Time until simulation ends : </span><input class="display-time" id="time-until-end" readonly="readonly"/></pre>
+			<pre><span class="output-format">              Time until simulation ends : </span><input class="display-time" id="time-until-end" readonly="readonly"/></pre>
 			
-			<pre><span class="output-format">                  Time until next pour : </span><input class="display-time" id="time-until-next-pour" readonly="readonly"/></pre>
+			<pre><span class="output-format">                    Time until next pour : </span><input class="display-time" id="time-until-next-pour" readonly="readonly"/></pre>
 
 			<br>
 			<br>
 				
-			<pre><span class="output-format">    Volume Remaining in Keg (in fl oz) : <input class="display-number" id="keg-volume-remaining" readonly="readonly"/> out of <input class="display-number" id="keg-volume-total" readonly="readonly"/> = <a id="percent-keg-remaining"></a>%</span></pre>
+			<pre><span class="output-format">      Volume Remaining in Keg (in fl oz) : <input class="display-number" id="keg-volume-remaining" readonly="readonly"/> out of <input class="display-number" id="keg-volume-total" readonly="readonly"/> = <a id="percent-keg-remaining"></a>%</span></pre>
 			
-			<pre><span class="output-format">Estimated date and time Keg will empty : </span><input class="display-datetime" id="datetime-keg-empties" readonly="readonly"/></pre>
+			<pre><span class="output-format">  Estimated date and time Keg will empty : </span><input class="display-datetime" id="datetime-keg-empties" readonly="readonly"/></pre>
 			 
-			<pre><span class="output-format">               Number of Drinks Poured : <input class="display-number" id="drinks-poured" readonly="readonly"/> out of </span><input class="display-number" id="drinks-total" readonly="readonly"/></pre>
+			<pre><span class="output-format">                 Number of Drinks Poured : <input class="display-number" id="drinks-poured" readonly="readonly"/> out of </span><input class="display-number" id="drinks-total" readonly="readonly"/></pre>
 	
-			<pre><span class="output-format">         Total Volume of Drinks Poured : <input class="display-number" id="drink-volume-poured" readonly="readonly"/> out of </span><input class="display-number" id="drink-volume-total" readonly="readonly"/></pre>
-		
+			<pre><span class="output-format">Total Volume of Drinks Poured (in fl oz) : <input class="display-number" id="drink-volume-poured" readonly="readonly"/> out of </span><input class="display-number" id="drink-volume-total" readonly="readonly"/></pre>
+		<div style="display:none;">
 			<pre><span class="output-format">                  Testing jQuery stuff : </span><input class="display-datetime" id="datetime_of_next_pour" readonly="readonly"/></pre>
 
-			<p id="START_CHECK"></p>
+			<p id="START_CHECK" value=0></p>
 			<p id="POURING"></p>
+			<p id="SCHEDULED_CHECK"></p>
+		</div>
 
 		</div>
 		<br>
 
 
 		<script>
-			
 			// LIST OF FUNCTIONS
 			function formatAMPM(datetime) {
 				//var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Augt", "Sept", "Oct", "Nov", "Dec"];
@@ -127,18 +124,31 @@
 				output = new Date(output.getTime() + 60000*output.getTimezoneOffset())
 				return output;
 			}	
-			
+			var yote;
+			var keg_volume_remaining;
+			var drinks_poured;
+			var drink_volume_poured;
+			var percent_keg_remaining;
 			// START OF PASSING VARIABLES
 			$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
 			function update_checks_and_other() {
 				$.getJSON($SCRIPT_ROOT+"/_stuff",
 					function(data) {
 						document.getElementById("POURING").value = data.dynamic_values.POURING;
+						document.getElementById("SCHEDULED_CHECK").value = data.dynamic_values.SCHEDULED_CHECK;
 						document.getElementById("START_CHECK").value = data.dynamic_values.START_CHECK;
 						document.getElementById("datetime_of_next_pour").value = data.dynamic_values.datetime_of_next_pour;	
+						if(data.dynamic_values.SCHEDULED_CHECK==1){
+							document.getElementById("keg-volume-remaining").value  = Math.round(data.dynamic_values.volume_of_keg_remaining*10)/10;
+							document.getElementById("drinks-poured").value = data.dynamic_values.drinks_poured;
+							document.getElementById("drink-volume-poured").value = Math.round(data.dynamic_values.volume_of_drinks*10)/10;	
+							document.getElementById("percent-keg-remaining").innerHTML = Math.round((data.dynamic_values.volume_of_keg_remaining/data.dynamic_values.volume_of_keg)*10000)/100;
+						}
 					});
 			}
-			setInterval(update_checks_and_other, 100);
+			update_checks_and_other();
+			setInterval(update_checks_and_other, 1000);
+			
 			if({{SCHEDULED_CHECK|tojson}}==1){
 				// static values
 				var simStartDatetime = convertDatetime({{ start_datetime_day|tojson }})
@@ -152,24 +162,9 @@
 				document.getElementById("drinks-total").value = {{drinks|tojson}}*{{days_of_operation|tojson}};
 				document.getElementById("drink-volume-total").value = {{drinks|tojson}}*{{days_of_operation|tojson}}*{{volume_of_drink|tojson}};
 				
-				// Update values without refreshing page
-				// non-timer dynamic values
-				$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
-				function update_liquids() {
-					$.getJSON($SCRIPT_ROOT+"/_stuff",
-						function(data) {
-							document.getElementById("keg-volume-remaining").value = Math.round(data.dynamic_values.volume_of_keg_remaining*10)/10;
-							document.getElementById("drinks-poured").value = data.dynamic_values.drinks_poured;
-							document.getElementById("drink-volume-poured").value = Math.round(data.dynamic_values.volume_of_drinks*10)/10;	
-							document.getElementById("percent-keg-remaining").innerHTML = Math.round((data.dynamic_values.volume_of_keg_remaining/data.dynamic_values.volume_of_keg)*10000)/100;
-						});
-				}
-				setInterval(update_liquids, 100);
-				/*/ non-timer dynamic values
-				document.getElementById("keg-volume-remaining").value = Math.round({{volume_of_keg_remaining|tojson}}*10)/10;
-				document.getElementById("drinks-poured").value = {{drinks_poured|tojson}};
-				document.getElementById("drink-volume-poured").value = Math.round({{volume_of_drinks|tojson}}*10)/10;	
-				document.getElementById("percent-keg-remaining").innerHTML = Math.round(({{volume_of_keg_remaining|tojson}}/{{volume_of_keg|tojson}})*10000)/100;*/
+				// dynamic values
+				// in jQuery
+
 			}else{
 				// static values
 				document.getElementById("sim-start-datetime").value = "Simulation Not Scheduled";
@@ -185,10 +180,8 @@
 				document.getElementById("drink-volume-poured").value = "N/A";	
 				document.getElementById("percent-keg-remaining").innerHTML = "N/A";
 			}
-
 			// TIMER FUNCTION
-			setInterval(function() {
-				//update_values()
+			setInterval(function x() {
 				// import start date and time, then adjust for time-zone
 				var countDownToStart = convertDatetime({{ start_datetime_day|tojson }})
 				var countDownToPour = convertDatetime(document.getElementById("datetime_of_next_pour").value)
@@ -201,7 +194,7 @@
 				var tue_v = getTimeRemainingOrElapsed(countDownToEnd,now);
 				var rt_v = getTimeRemainingOrElapsed(now,countDownToStart);
 				
-				if (document.getElementById("START_CHECK").value==0) {
+				if (document.getElementById("START_CHECK").value==0&&{{START_CHECK|tojson}}==0) {
 					document.getElementById("run-time").value = "Simulation Not Started";
 				}else if(tue_v.total>0){
 					document.getElementById("run-time").value = rt_v.output;
@@ -210,7 +203,7 @@
 					document.getElementById("run-time").value = last_runtime.output
 				}
 				
-				if ({{SCHEDULED_CHECK|tojson}}==0) {
+				if (document.getElementById("SCHEDULED_CHECK").value==0) {
 					document.getElementById("time-until-end").value = "Simulation Not Scheduled";
 				}else if(tue_v.total>=0){
 					document.getElementById("time-until-end").value = tue_v.output
@@ -222,8 +215,7 @@
 					document.getElementById("sim-countdown").value = "Simulation Not Scheduled";
 				}else if(document.getElementById("START_CHECK").value==0){
 					document.getElementById("sim-countdown").value = sc_v.output;
-				}
-				else if(tue_v.total<=0){
+				}else if(tue_v.total<=0){
 					document.getElementById("sim-countdown").value = "Simulation Has Ended";
 				}else{
 					document.getElementById("sim-countdown").value = "Simulation Started";
@@ -234,7 +226,7 @@
 				}else if(tue_v.total<=0){
 					document.getElementById("time-until-next-pour").value = "Simulation Has Ended";
 				}else if(document.getElementById("POURING").value==0){
-					if(document.getElementById("drinks-poured").value==document.getElementById("drinks-total").value){
+					if(document.getElementById("drinks-poured").value==document.getElementById("drinks-total").value||({{drinks|tojson}}*{{days_of_operation|tojson}})=={{drinks_poured|tojson}}){
 						document.getElementById("time-until-next-pour").value = "All drinks poured";
 					}else{
 						document.getElementById("time-until-next-pour").value = tunp_v.output;
@@ -244,8 +236,9 @@
 					document.getElementById("time-until-next-pour").value = "POURING";
 				}
 
+				return x;
+			}(), 100);
 
-			}, 100);
 		</script>
 	</body>
 

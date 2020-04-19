@@ -29,7 +29,8 @@ while True:
         if gpio_cur != 0 and gpio_cur != gpio_last:
             pulses += 1
         gpio_last = gpio_cur
-            
+        print(GPIO.input(27), end='')
+
 
     time_end = time.time()
     pour_time = time_end-time_start

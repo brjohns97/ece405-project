@@ -265,6 +265,7 @@ def stuff():
             'time_until_next_pour': operations.keg_stuff['time_until_next_pour'],
             'POURING': operations.keg_stuff['POURING'],
             'START_CHECK': operations.keg_stuff['START_CHECK'],
+            'SCHEDULED_CHECK': operations.keg_stuff['SCHEDULED_CHECK'],
             'drinks_poured': operations.keg_stuff['drinks_poured'],
             'day': operations.keg_stuff['day'],
             'volume_of_drinks': operations.keg_stuff['volume_of_drinks'],
