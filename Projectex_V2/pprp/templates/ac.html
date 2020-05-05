@@ -6,7 +6,8 @@
 	<hr/>
 	<p> This section allows the user to input the parameters for the automated kegerator simulation </p>
 	<br/>
-	<div id="ac_approved" class="content-section" style ="display: none;">
+	<br/>
+	<div class="content-section">
 		<form method="POST" action="">
 			{{ form.hidden_tag() }}
 			<fieldset class="form-group">
@@ -42,12 +43,12 @@
 						{{ form.volume_of_keg(class="form-control form-control-lg") }}
 				</div>
 				<div class="form-group">
-						{{ form.pour_time.label(class="form-control-label") }}
-						{{ form.pour_time(class="form-control form-control-lg") }}
-				</div>
-				<div class="form-group">
 						{{ form.volume_of_drink.label(class="form-control-label") }}
 						{{ form.volume_of_drink(class="form-control form-control-lg") }}
+				</div>
+				<div class="form-group">
+						{{ form.password.label(class="form-control-label") }}
+						{{ form.password(class="form-control form-control-lg") }}
 				</div>
 			</fieldset>
 			<div class="form-group">
@@ -58,10 +59,5 @@
 	<div>
 	<br>
 	</div>
-	<script>
-		if(1==1){
-			document.getElementById("ac_approved").style = "block;"
-		}
-	</script>
 {% endblock content %}
 

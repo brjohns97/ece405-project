@@ -3,9 +3,9 @@ import RPi.GPIO as GPIO
 import time, sys
 import math
 GPIO.setmode(GPIO.BCM)
-inpt = 27
+inpt = 4
 GPIO.setup(inpt, GPIO.IN)
-GPIO.setup(18, GPIO.OUT)
+#GPIO.setup(18, GPIO.OUT)
 
 pour_time = 0.0
 time_start = 0.0
@@ -29,7 +29,7 @@ while True:
         if gpio_cur != 0 and gpio_cur != gpio_last:
             pulses += 1
         gpio_last = gpio_cur
-        print(GPIO.input(27), end='')
+        print(GPIO.input(inpt), end='')
 
 
     time_end = time.time()

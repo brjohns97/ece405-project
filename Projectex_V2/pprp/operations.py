@@ -42,7 +42,7 @@ time_end = 0.0
 max_pulse = 3
 pulse = max_pulse
 update_flag = 0
-constant = 6.5
+constant = 6.8
     
 def my_callback(channel):
     global time_start,time_end,pulse,update_flag,max_pulse,pour_time
@@ -84,7 +84,7 @@ def pour_drink():
     pour_start_time = time.time()
     GPIO.output(18, GPIO.HIGH)
     # time.sleep(keg_stuff['pour_time']) #---> manual pour time code... if uncommented, then comment out entire flow meter calcuation
-
+                                                                                                                                                                                                                                                                                                                                            
     #start of flow meter calculation
     while (total_volume < desired_volume):
         if(update_flag == 1 and first_rising_edge != 0):
@@ -191,7 +191,6 @@ def reset_variables():
         keg_stuff['volume_of_keg_remaining'] = 0
         keg_stuff['datetime_keg_empties'] = datetime.datetime(2000,1,1,0,0,0)
         keg_stuff['test'] = datetime.datetime(2000,1,1,0,0,0)
-
 
 
 
