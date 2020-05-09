@@ -9,6 +9,15 @@ import threading
 import RPi.GPIO as GPIO
 import time
 
+op1 = operations.Operations(17) #passing in the flow meter GPIO
+op1.keg_stuff['valve_GPIO']=18
+                        
+op2 = operations.Operations(27) #passing in the flow meter GPIO
+op2.keg_stuff['valve_GPIO']=23
+
+op3 = operations.Operations(22) #passing in the flow meter GPIO
+op3.keg_stuff['valve_GPIO']=24
+
 posts = [
     {
         'author': 'Stephen Spade',
@@ -26,7 +35,7 @@ posts = [
         'author': 'Brad Johnson',
         'title': 'User Input',
         'content': 'The website now successfully takes user input for specifying the parameters for the automation simulation',
-        'date_posted': 'April ?, 2020'
+        'date_posted': 'April 9, 2020'
     },
     {
         'author': 'Brad Johnson',
@@ -45,6 +54,12 @@ posts = [
         'title': 'Password Protection & Website Design Update',
         'content': 'Accessing the kegerator controls requires a password to be input & Website has been polished',
         'date_posted': 'April 17, 2020'
+    },
+    {
+        'author': 'Brad Johnson',
+        'title': 'Created option to use 1-3 valves',
+        'content': 'The website now works with a maximum of 3 valves',
+        'date_posted': 'May 8, 2020'
     }
 ]
 
@@ -56,32 +71,19 @@ def home():
 
 @app.route("/simulation")
 def simulation():
-    return render_template('sim.html', **operations.keg_stuff)
+    return render_template('sim.html', **op1.keg_stuff)
 
 @app.route("/ac", methods=['GET', 'POST'])
 def ac():
     form = KegeratorForm()
     if form.validate_on_submit():
-        operations.reset_variables()
-        operations.keg_stuff['start_date_sim'] =form.start_date_sim.data
-        operations.keg_stuff['end_date_sim'] =form.end_date_sim.data
-        operations.keg_stuff['start_time_day'] =form.start_time_day.data
-        operations.keg_stuff['end_time_day'] =form.end_time_day.data
-        operations.keg_stuff['drinks'] =form.number_of_drinks.data
-        operations.keg_stuff['volume_of_keg'] =form.volume_of_keg.data
-        operations.keg_stuff['volume_of_drink'] =form.volume_of_drink.data
-        #operations.keg_stuff['pour_time'] =form.pour_time.data
-        operations.keg_stuff['volume_of_keg_remaining'] =form.volume_of_keg.data
-        
-        operations.keg_stuff['start_datetime_day'] = datetime.datetime.combine(operations.keg_stuff['start_date_sim'],operations.keg_stuff['start_time_day'])
-        operations.keg_stuff['end_of_start_datetime_day'] = datetime.datetime.combine(operations.keg_stuff['start_date_sim'],operations.keg_stuff['end_time_day'])
-        operations.keg_stuff['end_datetime_day'] = datetime.datetime.combine(operations.keg_stuff['end_date_sim'],operations.keg_stuff['end_time_day'])
-
-        operations.set_variables_for_operation()
-
-        delay = operations.keg_stuff['start_datetime_day']-datetime.datetime.now()
-        threading.Timer(delay.total_seconds(), operations.start_simulation).start()
-        
+        if(form.valve_1_check.data == True):
+            op1.schedule_simulation(form)
+        if(form.valve_2_check.data == True):
+            op2.schedule_simulation(form)
+        if(form.valve_3_check.data == True):
+            op3.schedule_simulation(form)
+            
         flash('Input has been uploaded to Automated Kegerator','success')
         return redirect(url_for('simulation'))
     elif request.method == 'POST':
@@ -95,8 +97,11 @@ def ac():
             flash('ERROR: Start Date and Time must be current date and time or later','danger')
         if (form.number_of_drinks.data < 0):
             flash('ERROR: Invalid Number of Drinks to be Poured','danger')
-        #if (form.pour_time.data < 0):
-         #   flash('ERROR: Invalid Pour Time Calibration','danger')
+        if ((form.valve_1_check.data or form.valve_2_check.data or form.valve_3_check.data) == False): #at least 1 valve is checked
+            print form.valve_1_check.data
+            print form.valve_2_check.data
+            print form.valve_3_check.data
+            flash('ERROR: At least one valve must be checked','danger')
         if (form.password.data != 'dixon'): #If incorrect password
             flash('ERROR: Incorrect Password','danger')
 
@@ -105,16 +110,16 @@ def ac():
 @app.route('/_stuff', methods= ['GET'])
 def stuff():
     dynamic_values = {
-            'time_until_next_pour': operations.keg_stuff['time_until_next_pour'],
-            'POURING': operations.keg_stuff['POURING'],
-            'START_CHECK': operations.keg_stuff['START_CHECK'],
-            'SCHEDULED_CHECK': operations.keg_stuff['SCHEDULED_CHECK'],
-            'drinks_poured': operations.keg_stuff['drinks_poured'],
-            'day': operations.keg_stuff['day'],
-            'volume_of_drinks': operations.keg_stuff['volume_of_drinks'],
-            'volume_of_keg_remaining': operations.keg_stuff['volume_of_keg_remaining'],
-            'volume_of_keg': operations.keg_stuff['volume_of_keg'],                  # not dynamic but needed for calculations
-            'datetime_of_next_pour': operations.keg_stuff['datetime_of_next_pour']
+            'time_until_next_pour': op1.keg_stuff['time_until_next_pour'],
+            'POURING': op1.keg_stuff['POURING'],
+            'START_CHECK': op1.keg_stuff['START_CHECK'],
+            'SCHEDULED_CHECK': op1.keg_stuff['SCHEDULED_CHECK'],
+            'drinks_poured': op1.keg_stuff['drinks_poured'],
+            'day': op1.keg_stuff['day'],
+            'volume_of_drinks': op1.keg_stuff['volume_of_drinks'],
+            'volume_of_keg_remaining': op1.keg_stuff['volume_of_keg_remaining'],
+            'volume_of_keg': op1.keg_stuff['volume_of_keg'],                  # not dynamic but needed for calculations
+            'datetime_of_next_pour': op1.keg_stuff['datetime_of_next_pour']
     }
     return jsonify(dynamic_values=dynamic_values)
 

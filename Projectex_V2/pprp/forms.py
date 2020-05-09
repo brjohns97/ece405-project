@@ -14,10 +14,12 @@ class KegeratorForm(FlaskForm):
     start_time_day = TimeField('Start Time of Each Day', validators=[DataRequired()])
     end_time_day = TimeField('End Time of Each Day', validators=[DataRequired()])
     number_of_drinks = IntegerField('Number of Drinks to be Poured Each Day', validators=[DataRequired(),positive_field_check])
-    volume_of_keg = IntegerField('Starting Volume of Kegerator', validators=[DataRequired()])
+    volume_of_keg = IntegerField('Starting Volume of Kegerator (volume in oz)', validators=[DataRequired()])
     volume_of_drink = FloatField('Volume of Drink (volume in oz)', validators=[DataRequired(),positive_field_check])
-    #pour_time = FloatField('Pour Time Calibration (time in seconds)', validators=[DataRequired(),positive_field_check])
     test = DateTimeField('Start Date and Time of Simulation')
+    valve_1_check = BooleanField('Valve 1')
+    valve_2_check = BooleanField('Valve 2')
+    valve_3_check = BooleanField('Valve 3')
     submit = SubmitField('Submit')
     password = PasswordField('Password',validators=[DataRequired()])
 
@@ -28,8 +30,10 @@ class KegeratorForm(FlaskForm):
 
     def validate_on_submit(self):
         result = super(KegeratorForm, self).validate()
-	if self.password.data != 'dixon': #If incorrect password
-	    return False
+        if self.password.data != 'dixon': #If incorrect password
+            return False
+        if ((self.valve_1_check.data or self.valve_2_check.data or self.valve_3_check.data) == False): #at least 1 valve is checked
+            return False
         if (self.start_date_sim.data>self.end_date_sim.data):   #if dates are impossible relative to the end dates
             return False
         elif(self.start_date_sim.data==self.end_date_sim.data and self.start_time_day.data>=self.end_time_day.data):    #if time is impossible relative to the end time and dates
@@ -41,12 +45,5 @@ class KegeratorForm(FlaskForm):
         else:
             return result
 
-class PassMCForm(FlaskForm):
-    password = PasswordField('Password',validators=[DataRequired()])
-    submit   = SubmitField('Enter')
-
-class PassACForm(FlaskForm):
-    password = PasswordField('Password',validators=[DataRequired()])
-    submit   = SubmitField('Enter')
 
     
