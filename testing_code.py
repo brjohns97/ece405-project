@@ -1,26 +1,24 @@
-class FlowCalculation():
-    def __init__(self):
-        self.pour_time = 69
-        
-    def changePourTime(self):
-        self.pour_time = 420
-    
-    def startSimulation(self):
-        self.changePourTime()
-    def initializeData(self,form):
-        self.pour_time = form.pour_time
-        
-        
-f1 = FlowCalculation()
-f2= FlowCalculation()
+import threading, time
+import flowclass
+import RPi.GPIO as GPIO
 
-print(f1.pour_time)
-f1.startSimulation()
-print(f1.pour_time)
-print(f2.pour_time)
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(18, GPIO.OUT, initial=GPIO.LOW)	#valve 1
+GPIO.setup(23, GPIO.OUT, initial=GPIO.LOW)	#valve 2
+GPIO.setup(24, GPIO.OUT, initial=GPIO.LOW)	#valve 3
 
-def createFlowObject():
-    f2.initializeData(f1)
+f1 = flowclass.FlowCalculation(1)
+f2 = flowclass.FlowCalculation(2)
+f3 = flowclass.FlowCalculation(3)
+threading.Timer(1, f1.startSimulation).start()
+threading.Timer(1, f2.startSimulation).start()
+threading.Timer(1, f3.startSimulation).start()
 
-createFlowObject()
-print(f2.pour_time)
+var = 1
+while var!= 0:
+
+    var = input("Enter something: ")
+    print("You entered: " + str(var))
+
+
+

@@ -1,22 +1,16 @@
-from flask import render_template, url_for, request, flash, redirect, Flask, request, jsonify
+from flask import render_template, url_for, flash, redirect, Flask, request, jsonify
 from pprp import app
 import requests
-from pprp.forms import PassMCForm, PassACForm, KegeratorForm
+from pprp.forms import KegeratorForm
 import datetime
 import operations
-import threading
 
 import RPi.GPIO as GPIO
 import time
 
-op1 = operations.Operations(17) #passing in the flow meter GPIO
-op1.keg_stuff['valve_GPIO']=18
-                        
-op2 = operations.Operations(27) #passing in the flow meter GPIO
-op2.keg_stuff['valve_GPIO']=23
-
-op3 = operations.Operations(22) #passing in the flow meter GPIO
-op3.keg_stuff['valve_GPIO']=24
+op1 = operations.Operations(17, 18) #passing in the flow meter GPIO and valve GPIO
+op2 = operations.Operations(27, 23) #passing in the flow meter GPIO and valve GPIO
+op3 = operations.Operations(22, 24) #passing in the flow meter GPIO and valve GPIO
 
 posts = [
     {
@@ -58,8 +52,8 @@ posts = [
     {
         'author': 'Brad Johnson',
         'title': 'Created option to use 1-3 valves',
-        'content': 'The website now works with a maximum of 3 valves',
-        'date_posted': 'May 8, 2020'
+        'content': 'The website now works with 3 valves',
+        'date_posted': 'May 9, 2020'
     }
 ]
 
@@ -109,18 +103,34 @@ def ac():
 
 @app.route('/_stuff', methods= ['GET'])
 def stuff():
-    dynamic_values = {
-            'time_until_next_pour': op1.keg_stuff['time_until_next_pour'],
-            'POURING': op1.keg_stuff['POURING'],
-            'START_CHECK': op1.keg_stuff['START_CHECK'],
-            'SCHEDULED_CHECK': op1.keg_stuff['SCHEDULED_CHECK'],
-            'drinks_poured': op1.keg_stuff['drinks_poured'],
-            'day': op1.keg_stuff['day'],
-            'volume_of_drinks': op1.keg_stuff['volume_of_drinks'],
-            'volume_of_keg_remaining': op1.keg_stuff['volume_of_keg_remaining'],
-            'volume_of_keg': op1.keg_stuff['volume_of_keg'],                  # not dynamic but needed for calculations
-            'datetime_of_next_pour': op1.keg_stuff['datetime_of_next_pour']
+    v1=getDynamicValues(op1);
+    v2=getDynamicValues(op2);
+    v3=getDynamicValues(op3);
+    
+    dynamic_values={
+        'valve1':v1,
+        'valve2':v2,
+        'valve3':v3,
+        'volume_of_keg_remaining':operations.volume_of_keg_remaining,
+        'volume_of_keg':operations.volume_of_keg,
+        #keg volume total
+        #datetime keg empties (not dynamic actaully...)
+        'num_of_valves':3
     }
     return jsonify(dynamic_values=dynamic_values)
 
 
+def getDynamicValues(operation_num):
+    valve_num = {
+            'time_until_next_pour': operation_num.keg_stuff['time_until_next_pour'],
+            'POURING': operation_num.keg_stuff['POURING'],
+            'START_CHECK': operation_num.keg_stuff['START_CHECK'],
+            'SCHEDULED_CHECK': operation_num.keg_stuff['SCHEDULED_CHECK'],
+            'drinks': operation_num.keg_stuff['drinks'],    #not dynamic but needed for calculations
+            'drinks_poured': operation_num.keg_stuff['drinks_poured'],
+            'day': operation_num.keg_stuff['day'],
+            'volume_of_drinks': operation_num.keg_stuff['volume_of_drinks'],
+            'volume_of_drink': operation_num.keg_stuff['volume_of_drink'],
+            'datetime_of_next_pour': operation_num.keg_stuff['datetime_of_next_pour']
+    }
+    return valve_num

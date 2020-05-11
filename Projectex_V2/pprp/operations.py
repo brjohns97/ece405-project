@@ -5,15 +5,12 @@ import math
 import RPi.GPIO as GPIO
 
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(18, GPIO.OUT, initial=GPIO.LOW)	#valve 1
-GPIO.setup(23, GPIO.OUT, initial=GPIO.LOW)	#valve 2
-GPIO.setup(24, GPIO.OUT, initial=GPIO.LOW)	#valve 3
-GPIO.setup(17, GPIO.IN)				#flow meter 1
-GPIO.setup(27, GPIO.IN)				#flow meter 2
-GPIO.setup(22, GPIO.IN)				#flow meter 3
+sem = threading.Semaphore()
+volume_of_keg = 0;
+volume_of_keg_remaining = 1;
 
 class Operations:
-	def __init__(self,meter_GPIO):
+	def __init__(self,meter_GPIO,valve_GPIO):
 		self.pour_time = 0.0
 		self.time_start = 0.0
 		self.time_end = 0.0
@@ -31,24 +28,26 @@ class Operations:
 			'end_datetime_day': datetime.datetime(2020,1,1,0,0,0),	#end datetime of operation using end date and end time
 			'datetime_of_next_pour': datetime.datetime(2020,1,1,0,0,0),
 			'drinks': 0,
-			'volume_of_keg': 1,
+			'volume_of_keg': 1,	#needs to be moved to global
 			'volume_of_drink': 0,
 			'pour_time': 5,
 			'time_between_start_of_drinks': 0,
-			'time_until_next_pour': 0 ,
+			'time_until_next_pour': 0,
 			'POURING': 0,
 			'SCHEDULED_CHECK': 0,
 			'START_CHECK': 0,
 			'drinks_poured': 0,
 			'day': 1,
-			'valve_GPIO': 18,
+			'valve_GPIO': valve_GPIO,
 			'meter_GPIO': meter_GPIO,
 			'days_of_operation': 0,
 			'volume_of_drinks':0,
-			'volume_of_keg_remaining': 0,
-			'datetime_keg_empties': datetime.datetime(2000,1,1,0,0,0),
+			'volume_of_keg_remaining': 0,	#needs to be moved to global
+			'datetime_keg_empties': datetime.datetime(2000,1,1,0,0,0),	#needs to be moved to global
 			'test': datetime.datetime(2000,1,1,0,0,0)
-		}		
+		}
+		GPIO.setup(valve_GPIO, GPIO.OUT, initial=GPIO.LOW)	#valve setup
+		GPIO.setup(meter_GPIO, GPIO.IN)				#flow meter setup
 		GPIO.add_event_detect(meter_GPIO, GPIO.RISING, callback=self.my_callback)
 
 	    
@@ -68,6 +67,8 @@ class Operations:
 
 
 	def pour_drink(self):
+	    global sem
+            sem.acquire()
 	    self.pour_time = 0.0
 	    self.time_start = 0.0
 	    self.time_end = 0.0
@@ -80,7 +81,6 @@ class Operations:
 	    Q3 = 0
 	    first_rising_edge = 0
 	    desired_volume = self.keg_stuff['volume_of_drink']*0.0295735 #in liters
-
 
 	    self.keg_stuff['POURING']=1
 	    pour_start_time = time.time()
@@ -111,16 +111,16 @@ class Operations:
 	# The code below needs to be here if the flow meter is placed after the valve
 	#   timeout = time.time() + 2.5 
 	#   while (time.time() < timeout):
-	#        if(update_flag == 1 and first_rising_edge != 0):
-	#            update_flag = 0
-	#            frequency = (max_pulse)/(pour_time)
+	#        if(self.update_flag == 1 and first_rising_edge != 0):
+	#            self.update_flag = 0
+	#            frequency = (self.max_pulse)/(self.pour_time)
 	#            Q3 = Q2
 	#            Q2 = Q1
 	#            Q1 = Q
-	#            Q = frequency/constant
-	#            #pour_volume = Q*(pour_time/60)
-	#            #keg_stuff['volume_of_drinks'] = keg_stuff['volume_of_drinks'] + pour_volume/0.0295735
-	#            #keg_stuff['volume_of_keg_remaining'] = keg_stuff['volume_of_keg'] - keg_stuff['volume_of_drinks']
+	#            Q = frequency/self.constant
+	#            #pour_volume = Q*(self.pour_time/60)
+	#            #self.keg_stuff['volume_of_drinks'] = self.keg_stuff['volume_of_drinks'] + pour_volume/0.0295735
+	#            #self.keg_stuff['volume_of_keg_remaining'] = self.keg_stuff['volume_of_keg'] - self.keg_stuff['volume_of_drinks']
 	#            total_volume = total_volume + pour_volume
 
 	    pour_end_time = time.time()
@@ -139,7 +139,9 @@ class Operations:
 	    if(self.keg_stuff['day']<=self.keg_stuff['days_of_operation']):
 		    threading.Timer(self.keg_stuff['time_until_next_pour'], self.pour_drink).start()
 		    self.keg_stuff['datetime_of_next_pour'] = datetime.datetime.now() + datetime.timedelta(seconds=(self.keg_stuff['time_until_next_pour']))
-
+	    
+	    time.sleep(2.5)
+            sem.release()
 
 	def set_variables_for_operation(self):
 		end_of_day_start_datetime = datetime.datetime.combine(self.keg_stuff['start_date_sim'],datetime.time(23,59,59))	#this is the start date with a start time of 12AM slapped onto it
@@ -169,7 +171,6 @@ class Operations:
 		self.keg_stuff['drinks'] =form.number_of_drinks.data
 		self.keg_stuff['volume_of_keg'] =form.volume_of_keg.data
 		self.keg_stuff['volume_of_drink'] =form.volume_of_drink.data
-		#operations.keg_stuff['pour_time'] =form.pour_time.data
 		self.keg_stuff['volume_of_keg_remaining'] =form.volume_of_keg.data
 		    
 		self.keg_stuff['start_datetime_day'] = datetime.datetime.combine(form.start_date_sim.data,form.start_time_day.data)

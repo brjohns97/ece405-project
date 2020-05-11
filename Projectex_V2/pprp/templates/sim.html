@@ -2,38 +2,10 @@
 {% block content %}
 
 	<body>
-		<style>
-			input[class=display-datetime] {
-			  width: 46%;
-			  padding: 0px 5px;
-			  box-sizing: border-box;
-			  font-size:24px;
-			  color:black;
-			}
-			input[class=display-number] {
-			  width: 10%;
-			  padding: 0px 5px;
-			  box-sizing: border-box;
-			  font-size:24px;
-			  color:black;
-			}
-			input[class=display-time] {
-			  width: 40%;
-			  padding: 0px 5px;
-			  box-sizing: border-box;
-			  font-size:24px;
-			  color:black;
-			}
-			.output-format{
-				color: black;
-				font-size:24px;
-			}
-			
-		</style>
 		<br>
 		<h1> <b>Simulation Statistics</b> </h1>
-		<hr/>
-		<div>
+		
+		<div style="display:none;">
 			<pre><span class="output-format">                Simulation will start in : </span><input class="display-time" id="sim-countdown" readonly="readonly"/></pre>
 
 			<pre><span class="output-format">       Start date and time of Simulation : </span><input class="display-datetime" id="sim-start-datetime" readonly="readonly"/></pre>
@@ -58,6 +30,8 @@
 			<pre><span class="output-format">                 Number of Drinks Poured : <input class="display-number" id="drinks-poured" readonly="readonly"/> out of </span><input class="display-number" id="drinks-total" readonly="readonly"/></pre>
 	
 			<pre><span class="output-format">Total Volume of Drinks Poured (in fl oz) : <input class="display-number" id="drink-volume-poured" readonly="readonly"/> out of </span><input class="display-number" id="drink-volume-total" readonly="readonly"/></pre>
+
+		</div>
 		<div style="display:none;">
 			<pre><span class="output-format">                  Testing jQuery stuff : </span><input class="display-datetime" id="datetime_of_next_pour" readonly="readonly"/></pre>
 
@@ -65,8 +39,70 @@
 			<p id="POURING"></p>
 			<p id="SCHEDULED_CHECK"></p>
 		</div>
-
-		</div>
+		<table id="keg_stats">
+			<tr>
+				<th></td>
+				<th>Valve 1</td>
+				<th>Valve 2</td>
+				<th>Valve 3</td>
+			</tr>
+			<tr id="sstad">
+				<td>Simulation Start Time and Date</td>
+				<td id ="valve1">Row 1 Column 2</td>
+				<td id ="valve2">Row 1 Column 3</td>
+				<td id ="valve3">Row 1 Column 4</td>
+			</tr>
+			<tr id="setad">
+				<td>Simulation End Time and Date</td>
+				<td id ="valve1">Row 1 Column 2</td>
+				<td id ="valve2">Row 1 Column 3</td>
+				<td id ="valve3">Row 1 Column 4</td>
+			</tr>
+			<tr id="tuss">
+				<td>Time Until Simulation Starts</td>
+				<td id ="valve1">Row 1 Column 2</td>
+				<td id ="valve2">Row 1 Column 3</td>
+				<td id ="valve3">Row 1 Column 4</td>
+			</tr>
+			<tr id="tuse">
+				<td>Time Until Simulation Ends</td>
+				<td id ="valve1">Row 1 Column 2</td>
+				<td id ="valve2">Row 1 Column 3</td>
+				<td id ="valve3">Row 1 Column 4</td>
+			</tr>
+			<tr id="tte">
+				<td>Total Time Elapsed</td>
+				<td id ="valve1">Row 1 Column 2</td>
+				<td id ="valve2">Row 1 Column 3</td>
+				<td id ="valve3">Row 1 Column 4</td>
+			</tr>
+			<tr id="tunp">
+				<td>Time Until Next Pour</td>
+				<td id ="valve1">Row 1 Column 2</td>
+				<td id ="valve2">Row 1 Column 3</td>
+				<td id ="valve3">Row 1 Column 4</td>
+			</tr>
+			<tr id="nodp">
+				<td>Number of Drinks Poured</td>
+				<td id ="valve1">Row 1 Column 2</td>
+				<td id ="valve2">Row 1 Column 3</td>
+				<td id ="valve3">Row 1 Column 4</td>
+			</tr>
+			<tr id="vodp">
+				<td>Volume of Drinks Poured</td>
+				<td id ="valve1">Row 1 Column 2</td>
+				<td id ="valve2">Row 1 Column 3</td>
+				<td id ="valve3">Row 1 Column 4</td>
+			</tr>
+			<tr id="tvrik">
+				<td>Total Volume Remaining in Keg</td>
+				<td id ="keg" colspan="3">Probably Enough</td>
+			</tr>
+			<tr id="etadkwe">
+				<td>Estimated Time and Date Keg Will Empty</td>
+				<td id ="keg" colspan="3" >Good Question</td>
+			</tr>
+		</table>
 		<br>
 
 
@@ -118,41 +154,58 @@
 					'seconds': seconds
 				};
 			}
+			
 			function convertDatetime(input) {
 				// Find the distance between now and the count down date
 				var output = new Date(input)
 				output = new Date(output.getTime() + 60000*output.getTimezoneOffset())
 				return output;
-			}	
-			var yote;
-			var keg_volume_remaining;
-			var drinks_poured;
-			var drink_volume_poured;
-			var percent_keg_remaining;
-			// START OF PASSING VARIABLES
+			}
+			
+			
+			// START OF PASSING AND CALCULATING VARIABLES - using jQuery every 1 second
 			$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
 			function update_checks_and_other() {
 				$.getJSON($SCRIPT_ROOT+"/_stuff",
 					function(data) {
-						document.getElementById("POURING").value = data.dynamic_values.POURING;
-						document.getElementById("SCHEDULED_CHECK").value = data.dynamic_values.SCHEDULED_CHECK;
-						document.getElementById("START_CHECK").value = data.dynamic_values.START_CHECK;
-						document.getElementById("datetime_of_next_pour").value = data.dynamic_values.datetime_of_next_pour;	
-						if(data.dynamic_values.SCHEDULED_CHECK==1){
-							document.getElementById("keg-volume-remaining").value  = Math.round(data.dynamic_values.volume_of_keg_remaining*10)/10;
-							document.getElementById("drinks-poured").value = data.dynamic_values.drinks_poured;
-							document.getElementById("drink-volume-poured").value = Math.round(data.dynamic_values.volume_of_drinks*10)/10;	
-							document.getElementById("percent-keg-remaining").innerHTML = Math.round((data.dynamic_values.volume_of_keg_remaining/data.dynamic_values.volume_of_keg)*10000)/100;
+						for(i = 1; i <= data.dynamic_values.num_of_valves; i++){
+							switch(i){
+								case 1:
+									parseThis = data.dynamic_values.valve1;
+									valve_num = "valve1";
+									break;
+								case 2:
+									parseThis = data.dynamic_values.valve2;
+									valve_num = "valve2";
+									break;
+								case 3:
+									parseThis = data.dynamic_values.valve3;
+									valve_num = "valve3";
+									break;
+							}
+							
+							document.getElementById("keg_stats").rows.namedItem("sstad").cells.namedItem(valve_num).innerHTML = parseThis.POURING;
+							document.getElementById("SCHEDULED_CHECK").value = data.dynamic_values.SCHEDULED_CHECK;
+							document.getElementById("START_CHECK").value = data.dynamic_values.START_CHECK;
+							document.getElementById("datetime_of_next_pour").value = data.dynamic_values.datetime_of_next_pour;	
+							if(data.dynamic_values.SCHEDULED_CHECK==1){
+								document.getElementById("keg-volume-remaining").value  = Math.round(data.dynamic_values.volume_of_keg_remaining*10)/10;
+								document.getElementById("keg_stats").rows.namedItem("nodp").cells.namedItem(valve_num).innerHTML = parseThis.drinks + " of " + parseThis.drinks_poured;
+								document.getElementById("keg_stats").rows.namedItem("vodp").cells.namedItem(valve_num).innerHTML = Math.round(parseThis.volume_of_drinks*10)/10 + "oz of " + (parseThis.volume_of_drink*parseThis.drinks)+ "oz";
+								document.getElementById("percent-keg-remaining").innerHTML = Math.round((data.dynamic_values.volume_of_keg_remaining/data.dynamic_values.volume_of_keg)*10000)/100;
+							}
 						}
 					});
 			}
 			update_checks_and_other();
 			setInterval(update_checks_and_other, 1000);
 			
+			// PASS IN STATIC VALUES UPON PAGE LOAD
 			if({{SCHEDULED_CHECK|tojson}}==1){
 				// static values
 				var simStartDatetime = convertDatetime({{ start_datetime_day|tojson }})
 				document.getElementById("sim-start-datetime").value = formatAMPM(simStartDatetime);
+				document.getElementById("keg_stats").rows.namedItem("sstad").cells.namedItem("valve1").innerHTML = formatAMPM(simStartDatetime);;
 				var simEndDatetime = convertDatetime({{ end_datetime_day|tojson }})
 				document.getElementById("sim-end-datetime").value = formatAMPM(simEndDatetime);
 				var emptyKegDatetime = convertDatetime({{ datetime_keg_empties|tojson }})
@@ -168,6 +221,7 @@
 			}else{
 				// static values
 				document.getElementById("sim-start-datetime").value = "Simulation Not Scheduled";
+				document.getElementById("keg_stats").rows.namedItem("sstad").cells.namedItem("valve1").innerHTML = "Simulation Not Scheduled";
 				document.getElementById("sim-end-datetime").value = "Simulation Not Scheduled";
 				document.getElementById("keg-volume-total").value = "N/A";
 				document.getElementById("drinks-total").value = "N/A";
@@ -180,7 +234,8 @@
 				document.getElementById("drink-volume-poured").value = "N/A";	
 				document.getElementById("percent-keg-remaining").innerHTML = "N/A";
 			}
-			// TIMER FUNCTION
+			
+			// TIMER FUNCTION FOR TUSS TUSE TTE TUNP
 			setInterval(function x() {
 				// import start date and time, then adjust for time-zone
 				var countDownToStart = convertDatetime({{ start_datetime_day|tojson }})

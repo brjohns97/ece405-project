@@ -141,7 +141,7 @@ a.article-title:hover {
     	width: 100%;
     	height: 100%;
     	top: 0;
-		background: #dbdbdb;
+		background-color: #dbdbdb;
     	left: 0;
     	z-index: 0;
 }
@@ -155,52 +155,54 @@ a.article-title:hover {
     z-index: 1;
 }
 
+#keg_stats {
+  font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
 
+#keg_stats td, #keg_stats th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
 
+#keg_stats tr:nth-child(even){background-color: #f2f2f2;}
 
+#keg_stats tr:hover {background-color: #ddd;}
 
+#keg_stats th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #4CAF50;
+  color: white;
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+input[class=display-datetime] {
+  width: 46%;
+  padding: 0px 5px;
+  box-sizing: border-box;
+  font-size:24px;
+  color:black;
+}
+input[class=display-number] {
+  width: 10%;
+  padding: 0px 5px;
+  box-sizing: border-box;
+  font-size:24px;
+  color:black;
+}
+input[class=display-time] {
+  width: 40%;
+  padding: 0px 5px;
+  box-sizing: border-box;
+  font-size:24px;
+  color:black;
+}
+.output-format{
+	color: black;
+	font-size:24px;
+}
 
 
 
