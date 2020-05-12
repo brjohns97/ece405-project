@@ -7,7 +7,8 @@ import RPi.GPIO as GPIO
 GPIO.setmode(GPIO.BCM)
 sem = threading.Semaphore()
 volume_of_keg = 0;
-volume_of_keg_remaining = 1;
+volume_of_keg_remaining = 0;
+datetime_keg_empties = datetime.datetime(2000,1,1,0,0,0);
 
 class Operations:
 	def __init__(self,meter_GPIO,valve_GPIO):
@@ -33,7 +34,7 @@ class Operations:
 			'pour_time': 5,
 			'time_between_start_of_drinks': 0,
 			'time_until_next_pour': 0,
-			'POURING': 0,
+			'POURING_CHECK': 0,
 			'SCHEDULED_CHECK': 0,
 			'START_CHECK': 0,
 			'drinks_poured': 0,
@@ -82,7 +83,7 @@ class Operations:
 	    first_rising_edge = 0
 	    desired_volume = self.keg_stuff['volume_of_drink']*0.0295735 #in liters
 
-	    self.keg_stuff['POURING']=1
+	    self.keg_stuff['POURING_CHECK']=1
 	    pour_start_time = time.time()
 	    GPIO.output(self.keg_stuff['valve_GPIO'], GPIO.HIGH)
 	    time.sleep(self.keg_stuff['pour_time']) #---> manual pour time code... if uncommented, then comment out entire flow meter calcuation
@@ -124,7 +125,7 @@ class Operations:
 	#            total_volume = total_volume + pour_volume
 
 	    pour_end_time = time.time()
-	    self.keg_stuff['POURING']=0
+	    self.keg_stuff['POURING_CHECK']=0
 	    total_pour_time = pour_end_time-pour_start_time
 	    self.keg_stuff['drinks_poured'] = self.keg_stuff['drinks_poured'] + 1
 	    

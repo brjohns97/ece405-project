@@ -11,7 +11,7 @@ import time
 op1 = operations.Operations(17, 18) #passing in the flow meter GPIO and valve GPIO
 op2 = operations.Operations(27, 23) #passing in the flow meter GPIO and valve GPIO
 op3 = operations.Operations(22, 24) #passing in the flow meter GPIO and valve GPIO
-
+number_of_valves = 3;
 posts = [
     {
         'author': 'Stephen Spade',
@@ -65,7 +65,18 @@ def home():
 
 @app.route("/simulation")
 def simulation():
-    return render_template('sim.html', **op1.keg_stuff)
+    v1=getStaticValues(op1);
+    v2=getStaticValues(op2);
+    v3=getStaticValues(op3);
+    
+    static_values={
+        'valve1':v1,
+        'valve2':v2,
+        'valve3':v3,
+        'datetime_keg_empties':operations.datetime_keg_empties,
+        'num_of_valves':number_of_valves
+    }
+    return render_template('sim.html', static_values=static_values)
 
 @app.route("/ac", methods=['GET', 'POST'])
 def ac():
@@ -115,7 +126,7 @@ def stuff():
         'volume_of_keg':operations.volume_of_keg,
         #keg volume total
         #datetime keg empties (not dynamic actaully...)
-        'num_of_valves':3
+        'num_of_valves':number_of_valves
     }
     return jsonify(dynamic_values=dynamic_values)
 
@@ -123,7 +134,7 @@ def stuff():
 def getDynamicValues(operation_num):
     valve_num = {
             'time_until_next_pour': operation_num.keg_stuff['time_until_next_pour'],
-            'POURING': operation_num.keg_stuff['POURING'],
+            'POURING_CHECK': operation_num.keg_stuff['POURING_CHECK'],
             'START_CHECK': operation_num.keg_stuff['START_CHECK'],
             'SCHEDULED_CHECK': operation_num.keg_stuff['SCHEDULED_CHECK'],
             'drinks': operation_num.keg_stuff['drinks'],    #not dynamic but needed for calculations
@@ -134,3 +145,17 @@ def getDynamicValues(operation_num):
             'datetime_of_next_pour': operation_num.keg_stuff['datetime_of_next_pour']
     }
     return valve_num
+    
+def getStaticValues(operation_num):
+    valve_num = {
+            'SCHEDULED_CHECK': operation_num.keg_stuff['SCHEDULED_CHECK'],
+            'start_datetime_day': operation_num.keg_stuff['start_datetime_day'],
+            'end_datetime_day': operation_num.keg_stuff['end_datetime_day'],
+            'START_CHECK': operation_num.keg_stuff['START_CHECK'],
+    }
+    return valve_num
+
+
+
+
+

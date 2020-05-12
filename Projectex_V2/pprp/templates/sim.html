@@ -102,12 +102,48 @@
 				<td>Estimated Time and Date Keg Will Empty</td>
 				<td id ="keg" colspan="3" >Good Question</td>
 			</tr>
+			<tr id="POURING_CHECK"><!--style="display:none;">-->
+				<td>Pouring Check</td>
+				<td id ="valve1"></td>
+				<td id ="valve2"></td>
+				<td id ="valve3"></td>
+			</tr>
+			<tr id="START_CHECK"><!--style="display:none;">-->
+				<td>Start Check</td>
+				<td id ="valve1"></td>
+				<td id ="valve2"></td>
+				<td id ="valve3"></td>
+			</tr>
+			<tr id="SCHEDULED_CHECK"><!--style="display:none;">-->
+				<td>Schedule Check</td>
+				<td id ="valve1"></td>
+				<td id ="valve2"></td>
+				<td id ="valve3"></td>
+			</tr>
+			<tr id="tadonp"><!--style="display:none;">-->
+				<td>Time and Date of Next Pour</td>
+				<td id ="valve1"></td>
+				<td id ="valve2"></td>
+				<td id ="valve3"></td>
+			</tr>
+			<tr id="drinks"><!--style="display:none;">-->
+				<td>Drinks Poured</td>
+				<td id ="valve1"></td>
+				<td id ="valve2"></td>
+				<td id ="valve3"></td>
+			</tr>
+			<tr id="drinks_poured"><!--style="display:none;">-->
+				<td>Drinks Total</td>
+				<td id ="valve1"></td>
+				<td id ="valve2"></td>
+				<td id ="valve3"></td>
+			</tr>
 		</table>
 		<br>
 
 
 		<script>
-			// LIST OF FUNCTIONS
+			// -------------------- LIST OF FUNCTIONS --------------------
 			function formatAMPM(datetime) {
 				//var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Augt", "Sept", "Oct", "Nov", "Dec"];
 				var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -163,7 +199,7 @@
 			}
 			
 			
-			// START OF PASSING AND CALCULATING VARIABLES - using jQuery every 1 second
+			// -------------------- START OF PASSING AND CALCULATING VARIABLES - using jQuery every 1 second --------------------
 			$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
 			function update_checks_and_other() {
 				$.getJSON($SCRIPT_ROOT+"/_stuff",
@@ -183,16 +219,16 @@
 									valve_num = "valve3";
 									break;
 							}
-							
-							document.getElementById("keg_stats").rows.namedItem("sstad").cells.namedItem(valve_num).innerHTML = parseThis.POURING;
-							document.getElementById("SCHEDULED_CHECK").value = data.dynamic_values.SCHEDULED_CHECK;
-							document.getElementById("START_CHECK").value = data.dynamic_values.START_CHECK;
-							document.getElementById("datetime_of_next_pour").value = data.dynamic_values.datetime_of_next_pour;	
-							if(data.dynamic_values.SCHEDULED_CHECK==1){
-								document.getElementById("keg-volume-remaining").value  = Math.round(data.dynamic_values.volume_of_keg_remaining*10)/10;
-								document.getElementById("keg_stats").rows.namedItem("nodp").cells.namedItem(valve_num).innerHTML = parseThis.drinks + " of " + parseThis.drinks_poured;
+							document.getElementById("keg_stats").rows.namedItem("POURING_CHECK").cells.namedItem(valve_num).innerHTML = parseThis.POURING_CHECK;
+							document.getElementById("keg_stats").rows.namedItem("drinks").cells.namedItem(valve_num).innerHTML = parseThis.drinks;
+							document.getElementById("keg_stats").rows.namedItem("drinks_poured").cells.namedItem(valve_num).innerHTML = parseThis.drinks_poured;
+							document.getElementById("keg_stats").rows.namedItem("SCHEDULED_CHECK").cells.namedItem(valve_num).innerHTML = parseThis.SCHEDULED_CHECK;
+							document.getElementById("keg_stats").rows.namedItem("START_CHECK").cells.namedItem(valve_num).innerHTML = parseThis.START_CHECK;
+							document.getElementById("keg_stats").rows.namedItem("tadonp").cells.namedItem(valve_num).innerHTML = parseThis.datetime_of_next_pour;
+							if(parseThis.SCHEDULED_CHECK==1){
+								document.getElementById("keg_stats").rows.namedItem("nodp").cells.namedItem(valve_num).innerHTML = parseThis.drinks_poured + " of " + parseThis.drinks;
 								document.getElementById("keg_stats").rows.namedItem("vodp").cells.namedItem(valve_num).innerHTML = Math.round(parseThis.volume_of_drinks*10)/10 + "oz of " + (parseThis.volume_of_drink*parseThis.drinks)+ "oz";
-								document.getElementById("percent-keg-remaining").innerHTML = Math.round((data.dynamic_values.volume_of_keg_remaining/data.dynamic_values.volume_of_keg)*10000)/100;
+								document.getElementById("keg_stats").rows.namedItem("tvrik").cells.namedItem("keg").innerHTML = Math.round(data.dynamic_values.volume_of_keg_remaining*10)/10 + "oz of " + Math.round(data.dynamic_values.volume_of_keg*10)/10 + "oz = " + Math.round((data.dynamic_values.volume_of_keg_remaining/data.dynamic_values.volume_of_keg)*10000)/100 + "%"
 							}
 						}
 					});
@@ -200,99 +236,132 @@
 			update_checks_and_other();
 			setInterval(update_checks_and_other, 1000);
 			
-			// PASS IN STATIC VALUES UPON PAGE LOAD
-			if({{SCHEDULED_CHECK|tojson}}==1){
-				// static values
-				var simStartDatetime = convertDatetime({{ start_datetime_day|tojson }})
-				document.getElementById("sim-start-datetime").value = formatAMPM(simStartDatetime);
-				document.getElementById("keg_stats").rows.namedItem("sstad").cells.namedItem("valve1").innerHTML = formatAMPM(simStartDatetime);;
-				var simEndDatetime = convertDatetime({{ end_datetime_day|tojson }})
-				document.getElementById("sim-end-datetime").value = formatAMPM(simEndDatetime);
-				var emptyKegDatetime = convertDatetime({{ datetime_keg_empties|tojson }})
-				document.getElementById("datetime-keg-empties").value = formatAMPM(emptyKegDatetime);
-				
-				document.getElementById("keg-volume-total").value = {{volume_of_keg|tojson}};
-				document.getElementById("drinks-total").value = {{drinks|tojson}}*{{days_of_operation|tojson}};
-				document.getElementById("drink-volume-total").value = {{drinks|tojson}}*{{days_of_operation|tojson}}*{{volume_of_drink|tojson}};
-				
-				// dynamic values
-				// in jQuery
+			
+			// -------------------- PASS IN STATIC VALUES UPON PAGE LOAD --------------------
+			var at_least_one_sim_started = 0;
+			for(i=1; i<={{static_values.num_of_valves|tojson}}; i++){
+				switch(i){
+					case 1:
+						valve_num = "valve1";
+						valve_static_values = {{ static_values.valve1|tojson }};
+						break;
+					case 2:
+						valve_num = "valve2";
+						valve_static_values = {{ static_values.valve2|tojson }};
+						break;
+					case 3:
+						valve_num = "valve3";
+						valve_static_values = {{ static_values.valve3|tojson }};
+						break;
+				}
+				if(valve_static_values.SCHEDULED_CHECK==1){
+					// static values
+					var simStartDatetime = convertDatetime(valve_static_values.start_datetime_day)
+					document.getElementById("keg_stats").rows.namedItem("sstad").cells.namedItem(valve_num).innerHTML = formatAMPM(simStartDatetime);
+					var simEndDatetime = convertDatetime(valve_static_values.end_datetime_day)
+					document.getElementById("keg_stats").rows.namedItem("setad").cells.namedItem(valve_num).innerHTML = formatAMPM(simEndDatetime);	
+					at_least_one_sim_started = 1;
+														
+					// dynamic values
+					// in jQuery
 
-			}else{
-				// static values
-				document.getElementById("sim-start-datetime").value = "Simulation Not Scheduled";
-				document.getElementById("keg_stats").rows.namedItem("sstad").cells.namedItem("valve1").innerHTML = "Simulation Not Scheduled";
-				document.getElementById("sim-end-datetime").value = "Simulation Not Scheduled";
-				document.getElementById("keg-volume-total").value = "N/A";
-				document.getElementById("drinks-total").value = "N/A";
-				document.getElementById("drink-volume-total").value = "N/A";
-				document.getElementById("datetime-keg-empties").value = "Simulation Not Scheduled";
-
-				// non-timer dynamic values
-				document.getElementById("keg-volume-remaining").value = "N/A";
-				document.getElementById("drinks-poured").value = "N/A";
-				document.getElementById("drink-volume-poured").value = "N/A";	
-				document.getElementById("percent-keg-remaining").innerHTML = "N/A";
+				}else{
+					// static values
+					document.getElementById("keg_stats").rows.namedItem("sstad").cells.namedItem(valve_num).innerHTML = "Simulation Not Scheduled";
+					document.getElementById("keg_stats").rows.namedItem("setad").cells.namedItem(valve_num).innerHTML = "Simulation Not Scheduled";
+					document.getElementById("keg_stats").rows.namedItem("tvrik").cells.namedItem("keg").innerHTML = "N/A";
+					document.getElementById("keg_stats").rows.namedItem("nodp").cells.namedItem(valve_num).innerHTML = "N/A";
+					document.getElementById("keg_stats").rows.namedItem("vodp").cells.namedItem(valve_num).innerHTML = "N/A";
+					document.getElementById("keg_stats").rows.namedItem("etadkwe").cells.namedItem("keg").innerHTML = "Simulation Not Scheduled";	
+				}
+			}
+			if(at_least_one_sim_started == 1){
+					var emptyKegDatetime = convertDatetime({{ static_values.datetime_keg_empties|tojson }})
+					document.getElementById("keg_stats").rows.namedItem("etadkwe").cells.namedItem("keg").innerHTML = formatAMPM(emptyKegDatetime);
 			}
 			
-			// TIMER FUNCTION FOR TUSS TUSE TTE TUNP
+			// TIMER FUNCTION
 			setInterval(function x() {
-				// import start date and time, then adjust for time-zone
-				var countDownToStart = convertDatetime({{ start_datetime_day|tojson }})
-				var countDownToPour = convertDatetime(document.getElementById("datetime_of_next_pour").value)
-				var countDownToEnd = convertDatetime({{ end_datetime_day|tojson }})
+				for(i=1; i<={{static_values.num_of_valves|tojson}}; i++){
+					switch(i){
+						case 1:
+							valve_num = "valve1";
+							valve_static_values = {{ static_values.valve1|tojson }};
+							break;
+						case 2:
+							valve_num = "valve2";
+							valve_static_values = {{ static_values.valve2|tojson }};
+							break;
+						case 3:
+							valve_num = "valve3";
+							valve_static_values = {{ static_values.valve3|tojson }};
+							break;
+					}
+					// import start date and time, then adjust for time-zone
+					var countDownToStart = convertDatetime(valve_static_values.start_datetime_day)
+					var countDownToPour = convertDatetime(document.getElementById("keg_stats").rows.namedItem("tadonp").cells.namedItem(valve_num).innerHTML)
+					var countDownToEnd = convertDatetime(valve_static_values.end_datetime_day)
 
-				// calculate and return days, hours, minutes, and seconds
-				var now = new Date()
-				var sc_v = getTimeRemainingOrElapsed(countDownToStart,now);
-				var tunp_v = getTimeRemainingOrElapsed(countDownToPour,now);
-				var tue_v = getTimeRemainingOrElapsed(countDownToEnd,now);
-				var rt_v = getTimeRemainingOrElapsed(now,countDownToStart);
-				
-				if (document.getElementById("START_CHECK").value==0&&{{START_CHECK|tojson}}==0) {
-					document.getElementById("run-time").value = "Simulation Not Started";
-				}else if(tue_v.total>0){
-					document.getElementById("run-time").value = rt_v.output;
-				}else{
-					var last_runtime = getTimeRemainingOrElapsed(countDownToEnd,countDownToStart);
-					document.getElementById("run-time").value = last_runtime.output
-				}
-				
-				if (document.getElementById("SCHEDULED_CHECK").value==0) {
-					document.getElementById("time-until-end").value = "Simulation Not Scheduled";
-				}else if(tue_v.total>=0){
-					document.getElementById("time-until-end").value = tue_v.output
-				}else{
-					document.getElementById("time-until-end").value = "Simulation Has Ended"
-				}
-				
-				if ({{SCHEDULED_CHECK|tojson}}==0) {
-					document.getElementById("sim-countdown").value = "Simulation Not Scheduled";
-				}else if(document.getElementById("START_CHECK").value==0){
-					document.getElementById("sim-countdown").value = sc_v.output;
-				}else if(tue_v.total<=0){
-					document.getElementById("sim-countdown").value = "Simulation Has Ended";
-				}else{
-					document.getElementById("sim-countdown").value = "Simulation Started";
-				}
-
-				if ({{SCHEDULED_CHECK|tojson}}==0) {
-					document.getElementById("time-until-next-pour").value = "Simulation Not Scheduled";
-				}else if(tue_v.total<=0){
-					document.getElementById("time-until-next-pour").value = "Simulation Has Ended";
-				}else if(document.getElementById("POURING").value==0){
-					if(document.getElementById("drinks-poured").value==document.getElementById("drinks-total").value||({{drinks|tojson}}*{{days_of_operation|tojson}})=={{drinks_poured|tojson}}){
-						document.getElementById("time-until-next-pour").value = "All drinks poured";
+					// calculate and return days, hours, minutes, and seconds
+					var now = new Date()
+					var sc_v = getTimeRemainingOrElapsed(countDownToStart,now);
+					var tunp_v = getTimeRemainingOrElapsed(countDownToPour,now);
+					var tue_v = getTimeRemainingOrElapsed(countDownToEnd,now);
+					var rt_v = getTimeRemainingOrElapsed(now,countDownToStart);
+					
+					// displaying the total time elapsed
+					if (document.getElementById("keg_stats").rows.namedItem("START_CHECK").cells.namedItem(valve_num).innerHTML==0) {
+						document.getElementById("keg_stats").rows.namedItem("tte").cells.namedItem(valve_num).innerHTML = "Simulation Not Started";
+					}else if(tue_v.total>0){
+						document.getElementById("keg_stats").rows.namedItem("tte").cells.namedItem(valve_num).innerHTML = rt_v.output;
 					}else{
-						document.getElementById("time-until-next-pour").value = tunp_v.output;
+						var last_runtime = getTimeRemainingOrElapsed(countDownToEnd,countDownToStart);
+						document.getElementById("keg_stats").rows.namedItem("tte").cells.namedItem(valve_num).innerHTML = last_runtime.output
+					}
+					
+					// displaying time until simulation ends
+					if (document.getElementById("keg_stats").rows.namedItem("SCHEDULED_CHECK").cells.namedItem(valve_num).innerHTML==0) {
+						document.getElementById("keg_stats").rows.namedItem("tuse").cells.namedItem(valve_num).innerHTML = "Simulation Not Scheduled";
+					}else if(tue_v.total>=0){
+						document.getElementById("keg_stats").rows.namedItem("tuse").cells.namedItem(valve_num).innerHTML = tue_v.output
+					}else{
+						document.getElementById("keg_stats").rows.namedItem("tuse").cells.namedItem(valve_num).innerHTML = "Simulation Has Ended"
+					}
+					
+					// displaying time until simulation starts 
+					if (document.getElementById("keg_stats").rows.namedItem("SCHEDULED_CHECK").cells.namedItem(valve_num).innerHTML==0) {
+						document.getElementById("keg_stats").rows.namedItem("tuss").cells.namedItem(valve_num).innerHTML = "Simulation Not Scheduled";
+					}else if(document.getElementById("keg_stats").rows.namedItem("START_CHECL").cells.namedItem(valve_num).innerHTML==0){
+						document.getElementById("keg_stats").rows.namedItem("tuss").cells.namedItem(valve_num).innerHTML = sc_v.output;
+					}else if(tue_v.total<=0){
+						document.getElementById("keg_stats").rows.namedItem("tuss").cells.namedItem(valve_num).innerHTML = "Simulation Has Ended";
+					}else{
+						document.getElementById("keg_stats").rows.namedItem("tuss").cells.namedItem(valve_num).innerHTML = "Simulation Started";
+					}
+
+					// displaying time until next pour
+					if (document.getElementById("keg_stats").rows.namedItem("SCHEDULED_CHECK").cells.namedItem(valve_num).innerHTML==0) {
+						document.getElementById("keg_stats").rows.namedItem("tunp").cells.namedItem(valve_num).innerHTML = "Simulation Not Scheduled";
+					}else if(tue_v.total<=0){
+						document.getElementById("keg_stats").rows.namedItem("tunp").cells.namedItem(valve_num).innerHTML = "Simulation Has Ended";
+					}else if(document.getElementById("keg_stats").rows.namedItem("POURING_CHECK").cells.namedItem(valve_num).innerHTML==0){
+						if(document.getElementById("keg_stats").rows.namedItem("drinks").cells.namedItem(valve_num).innerHTML==document.getElementById("keg_stats").rows.namedItem("drinks_poured").cells.namedItem(valve_num).innerHTML){
+							document.getElementById("keg_stats").rows.namedItem("tunp").cells.namedItem(valve_num).innerHTML = "All drinks poured";
+						}else{
+							if(tunp_v.total>=0){
+								document.getElementById("keg_stats").rows.namedItem("tunp").cells.namedItem(valve_num).innerHTML = tunp_v.output;
+							}else{
+								document.getElementById("keg_stats").rows.namedItem("tunp").cells.namedItem(valve_num).innerHTML = "Waiting on other valve";
+								}
+						}
+					}
+					else if(document.getElementById("keg_stats").rows.namedItem("POURING_CHECK").cells.namedItem(valve_num).innerHTML==1){
+						document.getElementById("keg_stats").rows.namedItem("tunp").cells.namedItem(valve_num).innerHTML = "POURING";
 					}
 				}
-				else if(document.getElementById("POURING").value==1){
-					document.getElementById("time-until-next-pour").value = "POURING";
-				}
-
 				return x;
-			}(), 100);
+			}(), 5000);
+
 
 		</script>
 	</body>
