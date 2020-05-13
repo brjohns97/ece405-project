@@ -29,7 +29,6 @@ class Operations:
 			'end_datetime_day': datetime.datetime(2020,1,1,0,0,0),	#end datetime of operation using end date and end time
 			'datetime_of_next_pour': datetime.datetime(2020,1,1,0,0,0),
 			'drinks': 0,
-			'volume_of_keg': 1,	#needs to be moved to global
 			'volume_of_drink': 0,
 			'pour_time': 5,
 			'time_between_start_of_drinks': 0,
@@ -43,7 +42,6 @@ class Operations:
 			'meter_GPIO': meter_GPIO,
 			'days_of_operation': 0,
 			'volume_of_drinks':0,
-			'volume_of_keg_remaining': 0,	#needs to be moved to global
 			'datetime_keg_empties': datetime.datetime(2000,1,1,0,0,0),	#needs to be moved to global
 			'test': datetime.datetime(2000,1,1,0,0,0)
 		}
@@ -68,7 +66,7 @@ class Operations:
 
 
 	def pour_drink(self):
-	    global sem
+	    global sem,volume_of_keg,volume_of_keg_remaining
             sem.acquire()
 	    self.pour_time = 0.0
 	    self.time_start = 0.0
@@ -99,7 +97,7 @@ class Operations:
 		    # Q = frequency/self.constant
 		    # pour_volume = Q*(pour_time/60)
 		    # self.keg_stuff['volume_of_drinks'] = self.keg_stuff['volume_of_drinks'] + pour_volume/0.0295735
-		    # self.keg_stuff['volume_of_keg_remaining'] = self.keg_stuff['volume_of_keg'] - self.keg_stuff['volume_of_drinks']
+		    # volume_of_keg_remaining = volume_of_keg - self.keg_stuff['volume_of_drinks']
 		    # total_volume = total_volume + pour_volume
 		# if(self.update_flag == 1 and first_rising_edge == 0):
 		    # self.update_flag = 0
@@ -121,7 +119,7 @@ class Operations:
 	#            Q = frequency/self.constant
 	#            #pour_volume = Q*(self.pour_time/60)
 	#            #self.keg_stuff['volume_of_drinks'] = self.keg_stuff['volume_of_drinks'] + pour_volume/0.0295735
-	#            #self.keg_stuff['volume_of_keg_remaining'] = self.keg_stuff['volume_of_keg'] - self.keg_stuff['volume_of_drinks']
+	#            #volume_of_keg_remaining = volume_of_keg - self.keg_stuff['volume_of_drinks']
 	#            total_volume = total_volume + pour_volume
 
 	    pour_end_time = time.time()
@@ -145,6 +143,7 @@ class Operations:
             sem.release()
 
 	def set_variables_for_operation(self):
+		global volume_of_keg
 		end_of_day_start_datetime = datetime.datetime.combine(self.keg_stuff['start_date_sim'],datetime.time(23,59,59))	#this is the start date with a start time of 12AM slapped onto it
 		start_of_day_start_datetime = datetime.datetime.combine(self.keg_stuff['start_date_sim'],datetime.time(0,0,0))	#this is the start date with a start time of 11:59PM slapped onto it
 		if ((self.keg_stuff['end_of_start_datetime_day']- self.keg_stuff['start_datetime_day']).total_seconds() > 0):				#example... start time is 5pm end time is 11pm	
@@ -158,22 +157,18 @@ class Operations:
 		self.keg_stuff['time_until_next_pour'] = self.keg_stuff['time_between_start_of_drinks']/2					#initialized to start and end at half of (time between drinks)
 		
 		self.keg_stuff['datetime_of_next_pour'] = self.keg_stuff['start_datetime_day'] + datetime.timedelta(seconds=self.keg_stuff['time_until_next_pour'])    #datetime of first pour
-		
-		drinks_until_keg_empties = math.ceil(self.keg_stuff['volume_of_keg']/self.keg_stuff['volume_of_drink'])
-		day_keg_will_empty = math.floor((drinks_until_keg_empties-1)/(self.keg_stuff['drinks']))
-		drink_number_keg_will_empty = ((drinks_until_keg_empties/(self.keg_stuff['drinks']))-day_keg_will_empty)*(self.keg_stuff['drinks'])
-		self.keg_stuff['datetime_keg_empties'] = self.keg_stuff['datetime_of_next_pour']+datetime.timedelta(days=day_keg_will_empty, seconds=(self.keg_stuff['time_between_start_of_drinks']*(drink_number_keg_will_empty-1)))
 
 	def schedule_simulation(self,form):
+		global volume_of_keg, volume_of_keg_remaining
 		self.keg_stuff['start_date_sim'] =form.start_date_sim.data
 		self.keg_stuff['end_date_sim'] =form.end_date_sim.data
 		self.keg_stuff['start_time_day'] =form.start_time_day.data
 		self.keg_stuff['end_time_day'] =form.end_time_day.data
 		self.keg_stuff['drinks'] =form.number_of_drinks.data
-		self.keg_stuff['volume_of_keg'] =form.volume_of_keg.data
 		self.keg_stuff['volume_of_drink'] =form.volume_of_drink.data
-		self.keg_stuff['volume_of_keg_remaining'] =form.volume_of_keg.data
-		    
+		if(form.volume_of_keg.data !=0):
+			volume_of_keg =form.volume_of_keg.data
+			volume_of_keg_remaining =form.volume_of_keg.data
 		self.keg_stuff['start_datetime_day'] = datetime.datetime.combine(form.start_date_sim.data,form.start_time_day.data)
 		self.keg_stuff['end_of_start_datetime_day'] = datetime.datetime.combine(form.start_date_sim.data,form.end_time_day.data)
 		self.keg_stuff['end_datetime_day'] = datetime.datetime.combine(form.end_date_sim.data,form.end_time_day.data)
@@ -193,3 +188,9 @@ class Operations:
 
 
 
+def calculate_dtke(valve1,valve2,valve3):
+	global volume_of_keg,volume_of_keg_remaining,datetime_keg_empties
+	drinks_until_keg_empties = math.ceil(volume_of_keg/valve1.keg_stuff['volume_of_drink'])
+	day_keg_will_empty = math.floor((drinks_until_keg_empties-1)/(valve1.keg_stuff['drinks']))
+	drink_number_keg_will_empty = ((drinks_until_keg_empties/(valve1.keg_stuff['drinks']))-day_keg_will_empty)*(valve1.keg_stuff['drinks'])
+	datetime_keg_empties = valve1.keg_stuff['datetime_of_next_pour']+datetime.timedelta(days=day_keg_will_empty, seconds=(valve1.keg_stuff['time_between_start_of_drinks']*(drink_number_keg_will_empty-1)))

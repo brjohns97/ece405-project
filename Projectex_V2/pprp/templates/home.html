@@ -1,6 +1,7 @@
 {% extends "layout.html" %}
 {% block content %}
 
+	<br>
 	<h1><b>Home Page</b></h1>
 	<hr/>
 	<p> 
@@ -19,4 +20,5 @@
 		<small> {{ post.date_posted }} </small>
 		<p> {{ post.content }} </p>
 	{% endfor %}
+	<p><br></p>
 {% endblock content %}

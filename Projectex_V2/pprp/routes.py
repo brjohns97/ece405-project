@@ -82,13 +82,15 @@ def simulation():
 def ac():
     form = KegeratorForm()
     if form.validate_on_submit():
+        print("valid submission")
         if(form.valve_1_check.data == True):
             op1.schedule_simulation(form)
         if(form.valve_2_check.data == True):
             op2.schedule_simulation(form)
         if(form.valve_3_check.data == True):
             op3.schedule_simulation(form)
-            
+
+        operations.calculate_dtke(op1,op2,op3);
         flash('Input has been uploaded to Automated Kegerator','success')
         return redirect(url_for('simulation'))
     elif request.method == 'POST':
@@ -100,7 +102,7 @@ def ac():
             flash('ERROR: Start Date must be current day or later','danger')
         elif(form.start_date_sim.data==datetime.date.today() and form.start_time_day.data<=datetime.datetime.now().time()): #if time is impossible relative to todays time and date
             flash('ERROR: Start Date and Time must be current date and time or later','danger')
-        if (form.number_of_drinks.data < 0):
+        if (form.number_of_drinks.data <= 0):
             flash('ERROR: Invalid Number of Drinks to be Poured','danger')
         if ((form.valve_1_check.data or form.valve_2_check.data or form.valve_3_check.data) == False): #at least 1 valve is checked
             print form.valve_1_check.data
@@ -124,8 +126,6 @@ def stuff():
         'valve3':v3,
         'volume_of_keg_remaining':operations.volume_of_keg_remaining,
         'volume_of_keg':operations.volume_of_keg,
-        #keg volume total
-        #datetime keg empties (not dynamic actaully...)
         'num_of_valves':number_of_valves
     }
     return jsonify(dynamic_values=dynamic_values)
@@ -137,9 +137,8 @@ def getDynamicValues(operation_num):
             'POURING_CHECK': operation_num.keg_stuff['POURING_CHECK'],
             'START_CHECK': operation_num.keg_stuff['START_CHECK'],
             'SCHEDULED_CHECK': operation_num.keg_stuff['SCHEDULED_CHECK'],
-            'drinks': operation_num.keg_stuff['drinks'],    #not dynamic but needed for calculations
             'drinks_poured': operation_num.keg_stuff['drinks_poured'],
-            'day': operation_num.keg_stuff['day'],
+            'drinks_total': operation_num.keg_stuff['days_of_operation']*operation_num.keg_stuff['drinks'],
             'volume_of_drinks': operation_num.keg_stuff['volume_of_drinks'],
             'volume_of_drink': operation_num.keg_stuff['volume_of_drink'],
             'datetime_of_next_pour': operation_num.keg_stuff['datetime_of_next_pour']

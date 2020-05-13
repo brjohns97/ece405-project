@@ -21,7 +21,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .content-section {
-	background: #ffffff;
+	background: #f8f8f8;
 	padding: 10px 20px;
 	border: 1px solid #dddddd;
 	border-radius: 3px;
@@ -148,60 +148,42 @@ a.article-title:hover {
 
 #container {
     background: #fff;
-    width: 70%;
+    width: 75%;
     height: 100%;
     margin: 0 auto;
     position: relative;
     z-index: 1;
 }
 
-#keg_stats {
+.output-format{
+	color: black;
+	font-size:24px;
+}
+
+.keg_stat_display {
   font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
   border-collapse: collapse;
   width: 100%;
+  margin-bottom:0;
+  display:table;
 }
 
-#keg_stats td, #keg_stats th {
+.keg_stat_display td, keg_stat_display th {
   border: 1px solid #ddd;
   padding: 8px;
 }
 
-#keg_stats tr:nth-child(even){background-color: #f2f2f2;}
+.keg_stat_display tr:nth-child(even){background-color: #f2f2f2;}
 
-#keg_stats tr:hover {background-color: #ddd;}
+.keg_stat_display tr:hover {background-color: #ddd;}
 
-#keg_stats th {
-  padding-top: 12px;
-  padding-bottom: 12px;
-  text-align: left;
-  background-color: #4CAF50;
+.keg_stat_display th{
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border: 1px solid #ffffff;
+  text-align: center;
+  background-color: #d42e12;
   color: white;
-}
-
-input[class=display-datetime] {
-  width: 46%;
-  padding: 0px 5px;
-  box-sizing: border-box;
-  font-size:24px;
-  color:black;
-}
-input[class=display-number] {
-  width: 10%;
-  padding: 0px 5px;
-  box-sizing: border-box;
-  font-size:24px;
-  color:black;
-}
-input[class=display-time] {
-  width: 40%;
-  padding: 0px 5px;
-  box-sizing: border-box;
-  font-size:24px;
-  color:black;
-}
-.output-format{
-	color: black;
-	font-size:24px;
 }
 
 

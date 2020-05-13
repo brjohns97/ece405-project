@@ -4,42 +4,12 @@
 	<body>
 		<br>
 		<h1> <b>Simulation Statistics</b> </h1>
-		
-		<div style="display:none;">
-			<pre><span class="output-format">                Simulation will start in : </span><input class="display-time" id="sim-countdown" readonly="readonly"/></pre>
-
-			<pre><span class="output-format">       Start date and time of Simulation : </span><input class="display-datetime" id="sim-start-datetime" readonly="readonly"/></pre>
-				
-			<pre><span class="output-format">         End date and time of Simulation : </span><input class="display-datetime" id="sim-end-datetime" readonly="readonly"/></pre>
-			<br>
-			<br>
-			
-			<pre><span class="output-format">                      Total Time Elapsed : </span><input class="display-time" id="run-time" readonly="readonly"/></pre>
-			
-			<pre><span class="output-format">              Time until simulation ends : </span><input class="display-time" id="time-until-end" readonly="readonly"/></pre>
-			
-			<pre><span class="output-format">                    Time until next pour : </span><input class="display-time" id="time-until-next-pour" readonly="readonly"/></pre>
-
-			<br>
-			<br>
-				
-			<pre><span class="output-format">      Volume Remaining in Keg (in fl oz) : <input class="display-number" id="keg-volume-remaining" readonly="readonly"/> out of <input class="display-number" id="keg-volume-total" readonly="readonly"/> = <a id="percent-keg-remaining"></a>%</span></pre>
-			
-			<pre><span class="output-format">  Estimated date and time Keg will empty : </span><input class="display-datetime" id="datetime-keg-empties" readonly="readonly"/></pre>
-			 
-			<pre><span class="output-format">                 Number of Drinks Poured : <input class="display-number" id="drinks-poured" readonly="readonly"/> out of </span><input class="display-number" id="drinks-total" readonly="readonly"/></pre>
-	
-			<pre><span class="output-format">Total Volume of Drinks Poured (in fl oz) : <input class="display-number" id="drink-volume-poured" readonly="readonly"/> out of </span><input class="display-number" id="drink-volume-total" readonly="readonly"/></pre>
-
-		</div>
-		<div style="display:none;">
-			<pre><span class="output-format">                  Testing jQuery stuff : </span><input class="display-datetime" id="datetime_of_next_pour" readonly="readonly"/></pre>
-
-			<p id="START_CHECK" value=0></p>
-			<p id="POURING"></p>
-			<p id="SCHEDULED_CHECK"></p>
-		</div>
-		<table id="keg_stats">
+		<style>
+			#main_section{
+				max-width: 1600px;
+			}
+		</style>
+		<table class="keg_stat_display" id="keg_stats">
 			<tr>
 				<th></td>
 				<th>Valve 1</td>
@@ -96,50 +66,60 @@
 			</tr>
 			<tr id="tvrik">
 				<td>Total Volume Remaining in Keg</td>
-				<td id ="keg" colspan="3">Probably Enough</td>
+				<td id ="keg" colspan="3" style="text-align: center;">Probably Enough</td>
 			</tr>
 			<tr id="etadkwe">
 				<td>Estimated Time and Date Keg Will Empty</td>
-				<td id ="keg" colspan="3" >Good Question</td>
+				<td id ="keg" colspan="3" style="text-align: center;">Good Question</td>
 			</tr>
-			<tr id="POURING_CHECK"><!--style="display:none;">-->
+		</table>
+		
+		<p><br></p>
+		
+		<table class="keg_stat_display" id="keg_stats_h" style="display:none;">
+			<tr>
+				<th></td>
+				<th>Valve 1</td>
+				<th>Valve 2</td>
+				<th>Valve 3</td>
+			</tr>
+			<tr id="POURING_CHECK">
 				<td>Pouring Check</td>
 				<td id ="valve1"></td>
 				<td id ="valve2"></td>
 				<td id ="valve3"></td>
 			</tr>
-			<tr id="START_CHECK"><!--style="display:none;">-->
+			<tr id="START_CHECK">
 				<td>Start Check</td>
 				<td id ="valve1"></td>
 				<td id ="valve2"></td>
 				<td id ="valve3"></td>
 			</tr>
-			<tr id="SCHEDULED_CHECK"><!--style="display:none;">-->
+			<tr id="SCHEDULED_CHECK">
 				<td>Schedule Check</td>
 				<td id ="valve1"></td>
 				<td id ="valve2"></td>
 				<td id ="valve3"></td>
 			</tr>
-			<tr id="tadonp"><!--style="display:none;">-->
+			<tr id="tadonp">
 				<td>Time and Date of Next Pour</td>
 				<td id ="valve1"></td>
 				<td id ="valve2"></td>
 				<td id ="valve3"></td>
 			</tr>
-			<tr id="drinks"><!--style="display:none;">-->
+			<tr id="drinks_poured">
 				<td>Drinks Poured</td>
 				<td id ="valve1"></td>
 				<td id ="valve2"></td>
 				<td id ="valve3"></td>
 			</tr>
-			<tr id="drinks_poured"><!--style="display:none;">-->
+			<tr id="drinks_total">
 				<td>Drinks Total</td>
 				<td id ="valve1"></td>
 				<td id ="valve2"></td>
 				<td id ="valve3"></td>
 			</tr>
 		</table>
-		<br>
 
 
 		<script>
@@ -219,15 +199,15 @@
 									valve_num = "valve3";
 									break;
 							}
-							document.getElementById("keg_stats").rows.namedItem("POURING_CHECK").cells.namedItem(valve_num).innerHTML = parseThis.POURING_CHECK;
-							document.getElementById("keg_stats").rows.namedItem("drinks").cells.namedItem(valve_num).innerHTML = parseThis.drinks;
-							document.getElementById("keg_stats").rows.namedItem("drinks_poured").cells.namedItem(valve_num).innerHTML = parseThis.drinks_poured;
-							document.getElementById("keg_stats").rows.namedItem("SCHEDULED_CHECK").cells.namedItem(valve_num).innerHTML = parseThis.SCHEDULED_CHECK;
-							document.getElementById("keg_stats").rows.namedItem("START_CHECK").cells.namedItem(valve_num).innerHTML = parseThis.START_CHECK;
-							document.getElementById("keg_stats").rows.namedItem("tadonp").cells.namedItem(valve_num).innerHTML = parseThis.datetime_of_next_pour;
+							document.getElementById("keg_stats_h").rows.namedItem("POURING_CHECK").cells.namedItem(valve_num).innerHTML = parseThis.POURING_CHECK;
+							document.getElementById("keg_stats_h").rows.namedItem("drinks_total").cells.namedItem(valve_num).innerHTML = parseThis.drinks_total;
+							document.getElementById("keg_stats_h").rows.namedItem("drinks_poured").cells.namedItem(valve_num).innerHTML = parseThis.drinks_poured;
+							document.getElementById("keg_stats_h").rows.namedItem("SCHEDULED_CHECK").cells.namedItem(valve_num).innerHTML = parseThis.SCHEDULED_CHECK;
+							document.getElementById("keg_stats_h").rows.namedItem("START_CHECK").cells.namedItem(valve_num).innerHTML = parseThis.START_CHECK;
+							document.getElementById("keg_stats_h").rows.namedItem("tadonp").cells.namedItem(valve_num).innerHTML = parseThis.datetime_of_next_pour;
 							if(parseThis.SCHEDULED_CHECK==1){
-								document.getElementById("keg_stats").rows.namedItem("nodp").cells.namedItem(valve_num).innerHTML = parseThis.drinks_poured + " of " + parseThis.drinks;
-								document.getElementById("keg_stats").rows.namedItem("vodp").cells.namedItem(valve_num).innerHTML = Math.round(parseThis.volume_of_drinks*10)/10 + "oz of " + (parseThis.volume_of_drink*parseThis.drinks)+ "oz";
+								document.getElementById("keg_stats").rows.namedItem("nodp").cells.namedItem(valve_num).innerHTML = parseThis.drinks_poured + " of " + parseThis.drinks_total;
+								document.getElementById("keg_stats").rows.namedItem("vodp").cells.namedItem(valve_num).innerHTML = Math.round(parseThis.volume_of_drinks*10)/10 + "oz of " + (parseThis.volume_of_drink*parseThis.drinks_total)+ "oz";
 								document.getElementById("keg_stats").rows.namedItem("tvrik").cells.namedItem("keg").innerHTML = Math.round(data.dynamic_values.volume_of_keg_remaining*10)/10 + "oz of " + Math.round(data.dynamic_values.volume_of_keg*10)/10 + "oz = " + Math.round((data.dynamic_values.volume_of_keg_remaining/data.dynamic_values.volume_of_keg)*10000)/100 + "%"
 							}
 						}
@@ -299,7 +279,7 @@
 					}
 					// import start date and time, then adjust for time-zone
 					var countDownToStart = convertDatetime(valve_static_values.start_datetime_day)
-					var countDownToPour = convertDatetime(document.getElementById("keg_stats").rows.namedItem("tadonp").cells.namedItem(valve_num).innerHTML)
+					var countDownToPour = convertDatetime(document.getElementById("keg_stats_h").rows.namedItem("tadonp").cells.namedItem(valve_num).innerHTML)
 					var countDownToEnd = convertDatetime(valve_static_values.end_datetime_day)
 
 					// calculate and return days, hours, minutes, and seconds
@@ -310,7 +290,7 @@
 					var rt_v = getTimeRemainingOrElapsed(now,countDownToStart);
 					
 					// displaying the total time elapsed
-					if (document.getElementById("keg_stats").rows.namedItem("START_CHECK").cells.namedItem(valve_num).innerHTML==0) {
+					if (document.getElementById("keg_stats_h").rows.namedItem("START_CHECK").cells.namedItem(valve_num).innerHTML==0) {
 						document.getElementById("keg_stats").rows.namedItem("tte").cells.namedItem(valve_num).innerHTML = "Simulation Not Started";
 					}else if(tue_v.total>0){
 						document.getElementById("keg_stats").rows.namedItem("tte").cells.namedItem(valve_num).innerHTML = rt_v.output;
@@ -320,7 +300,7 @@
 					}
 					
 					// displaying time until simulation ends
-					if (document.getElementById("keg_stats").rows.namedItem("SCHEDULED_CHECK").cells.namedItem(valve_num).innerHTML==0) {
+					if (document.getElementById("keg_stats_h").rows.namedItem("SCHEDULED_CHECK").cells.namedItem(valve_num).innerHTML==0) {
 						document.getElementById("keg_stats").rows.namedItem("tuse").cells.namedItem(valve_num).innerHTML = "Simulation Not Scheduled";
 					}else if(tue_v.total>=0){
 						document.getElementById("keg_stats").rows.namedItem("tuse").cells.namedItem(valve_num).innerHTML = tue_v.output
@@ -329,9 +309,9 @@
 					}
 					
 					// displaying time until simulation starts 
-					if (document.getElementById("keg_stats").rows.namedItem("SCHEDULED_CHECK").cells.namedItem(valve_num).innerHTML==0) {
+					if (document.getElementById("keg_stats_h").rows.namedItem("SCHEDULED_CHECK").cells.namedItem(valve_num).innerHTML==0) {
 						document.getElementById("keg_stats").rows.namedItem("tuss").cells.namedItem(valve_num).innerHTML = "Simulation Not Scheduled";
-					}else if(document.getElementById("keg_stats").rows.namedItem("START_CHECL").cells.namedItem(valve_num).innerHTML==0){
+					}else if(document.getElementById("keg_stats_h").rows.namedItem("START_CHECK").cells.namedItem(valve_num).innerHTML==0){
 						document.getElementById("keg_stats").rows.namedItem("tuss").cells.namedItem(valve_num).innerHTML = sc_v.output;
 					}else if(tue_v.total<=0){
 						document.getElementById("keg_stats").rows.namedItem("tuss").cells.namedItem(valve_num).innerHTML = "Simulation Has Ended";
@@ -340,12 +320,12 @@
 					}
 
 					// displaying time until next pour
-					if (document.getElementById("keg_stats").rows.namedItem("SCHEDULED_CHECK").cells.namedItem(valve_num).innerHTML==0) {
+					if (document.getElementById("keg_stats_h").rows.namedItem("SCHEDULED_CHECK").cells.namedItem(valve_num).innerHTML==0) {
 						document.getElementById("keg_stats").rows.namedItem("tunp").cells.namedItem(valve_num).innerHTML = "Simulation Not Scheduled";
 					}else if(tue_v.total<=0){
 						document.getElementById("keg_stats").rows.namedItem("tunp").cells.namedItem(valve_num).innerHTML = "Simulation Has Ended";
-					}else if(document.getElementById("keg_stats").rows.namedItem("POURING_CHECK").cells.namedItem(valve_num).innerHTML==0){
-						if(document.getElementById("keg_stats").rows.namedItem("drinks").cells.namedItem(valve_num).innerHTML==document.getElementById("keg_stats").rows.namedItem("drinks_poured").cells.namedItem(valve_num).innerHTML){
+					}else if(document.getElementById("keg_stats_h").rows.namedItem("POURING_CHECK").cells.namedItem(valve_num).innerHTML==0){
+						if(document.getElementById("keg_stats_h").rows.namedItem("drinks_total").cells.namedItem(valve_num).innerHTML==document.getElementById("keg_stats_h").rows.namedItem("drinks_poured").cells.namedItem(valve_num).innerHTML){
 							document.getElementById("keg_stats").rows.namedItem("tunp").cells.namedItem(valve_num).innerHTML = "All drinks poured";
 						}else{
 							if(tunp_v.total>=0){
@@ -355,12 +335,12 @@
 								}
 						}
 					}
-					else if(document.getElementById("keg_stats").rows.namedItem("POURING_CHECK").cells.namedItem(valve_num).innerHTML==1){
+					else if(document.getElementById("keg_stats_h").rows.namedItem("POURING_CHECK").cells.namedItem(valve_num).innerHTML==1){
 						document.getElementById("keg_stats").rows.namedItem("tunp").cells.namedItem(valve_num).innerHTML = "POURING";
 					}
 				}
 				return x;
-			}(), 5000);
+			}(), 100);
 
 
 		</script>
