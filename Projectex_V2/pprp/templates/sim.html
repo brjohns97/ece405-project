@@ -206,8 +206,8 @@
 							document.getElementById("keg_stats_h").rows.namedItem("START_CHECK").cells.namedItem(valve_num).innerHTML = parseThis.START_CHECK;
 							document.getElementById("keg_stats_h").rows.namedItem("tadonp").cells.namedItem(valve_num).innerHTML = parseThis.datetime_of_next_pour;
 							if(parseThis.SCHEDULED_CHECK==1){
-								document.getElementById("keg_stats").rows.namedItem("nodp").cells.namedItem(valve_num).innerHTML = parseThis.drinks_poured + " of " + parseThis.drinks_total;
-								document.getElementById("keg_stats").rows.namedItem("vodp").cells.namedItem(valve_num).innerHTML = Math.round(parseThis.volume_of_drinks*10)/10 + "oz of " + (parseThis.volume_of_drink*parseThis.drinks_total)+ "oz";
+								document.getElementById("keg_stats").rows.namedItem("nodp").cells.namedItem(valve_num).innerHTML = parseThis.drinks_poured + " of " + parseThis.drinks_total + "  (" + parseThis.drinks + " per day)";
+								document.getElementById("keg_stats").rows.namedItem("vodp").cells.namedItem(valve_num).innerHTML = Math.round(parseThis.volume_of_drinks*10)/10 + "oz of " + (parseThis.volume_of_drink*parseThis.drinks_total)+ "oz" + "  (" + parseThis.volume_of_drink + "oz per drink)";
 								document.getElementById("keg_stats").rows.namedItem("tvrik").cells.namedItem("keg").innerHTML = Math.round(data.dynamic_values.volume_of_keg_remaining*10)/10 + "oz of " + Math.round(data.dynamic_values.volume_of_keg*10)/10 + "oz = " + Math.round((data.dynamic_values.volume_of_keg_remaining/data.dynamic_values.volume_of_keg)*10000)/100 + "%"
 							}
 						}

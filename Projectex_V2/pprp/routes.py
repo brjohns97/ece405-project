@@ -102,6 +102,8 @@ def ac():
             flash('ERROR: Start Date must be current day or later','danger')
         elif(form.start_date_sim.data==datetime.date.today() and form.start_time_day.data<=datetime.datetime.now().time()): #if time is impossible relative to todays time and date
             flash('ERROR: Start Date and Time must be current date and time or later','danger')
+        elif(form.start_time_day.data==form.end_time_day.data): #if start time of each day is equal to end time of each day
+            flash('ERROR: Start and End Times of each day cannot be equal','danger')
         if (form.number_of_drinks.data <= 0):
             flash('ERROR: Invalid Number of Drinks to be Poured','danger')
         if ((form.valve_1_check.data or form.valve_2_check.data or form.valve_3_check.data) == False): #at least 1 valve is checked
@@ -139,6 +141,7 @@ def getDynamicValues(operation_num):
             'SCHEDULED_CHECK': operation_num.keg_stuff['SCHEDULED_CHECK'],
             'drinks_poured': operation_num.keg_stuff['drinks_poured'],
             'drinks_total': operation_num.keg_stuff['days_of_operation']*operation_num.keg_stuff['drinks'],
+            'drinks': operation_num.keg_stuff['drinks'],
             'volume_of_drinks': operation_num.keg_stuff['volume_of_drinks'],
             'volume_of_drink': operation_num.keg_stuff['volume_of_drink'],
             'datetime_of_next_pour': operation_num.keg_stuff['datetime_of_next_pour']
