@@ -144,9 +144,6 @@ def ac():
         if (form.number_of_drinks.data <= 0):
             flash('ERROR: Invalid Number of Drinks to be Poured','danger')
         if ((form.valve_1_check.data or form.valve_2_check.data or form.valve_3_check.data) == False): #at least 1 valve is checked
-            print form.valve_1_check.data
-            print form.valve_2_check.data
-            print form.valve_3_check.data
             flash('ERROR: At least one valve must be checked','danger')
         if (form.password.data != password_check): #If incorrect password
             flash('ERROR: Incorrect Password','danger')

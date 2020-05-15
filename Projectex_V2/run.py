@@ -34,5 +34,5 @@ server.quit()
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host=get_ip_address(), port=8000)
+    app.run(debug=False, host=get_ip_address(), port=8000)
     

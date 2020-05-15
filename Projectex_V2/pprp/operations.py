@@ -4,7 +4,6 @@ import time
 import copy
 import math
 import RPi.GPIO as GPIO
-from bs4 import BeautifulSoup
 
 GPIO.setmode(GPIO.BCM)
 sem = threading.Semaphore()
