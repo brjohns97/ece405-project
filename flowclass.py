@@ -9,7 +9,14 @@ class FlowCalculation():
         self.valve_num = valve_num
         self.drink_num = 1
         self.POURING = False
-        
+        self.valve_thread = 0
+        self.CANCELED_FLAG=0
+        self.keg_stats = {
+            'pour_check':0,
+            'start_check':0,
+            'valve_number':self.valve_num,
+            'drinks':13
+        }
 
     def pour_drink(self):
         #global POURING_ANY
@@ -26,13 +33,28 @@ class FlowCalculation():
             print('ended... valve: ' + str(self.valve_num) + '  drink#: ' + str(self.drink_num) + '  time: ' + str(time.time()-start_time))
             self.drink_num=self.drink_num+1
             time.sleep(2.5)
-            threading.Timer(10, self.pour_drink).start()
+            if(self.CANCELED_FLAG==0):
+                self.valve_thread = threading.Timer(10, self.pour_drink)
+                self.valve_thread.start()
+            else:
+                self.CANCELED_FLAG=0
         #POURING_ANY = False
         sem.release()
 
+    def scheduleSimulation(self):
+        print('simulation scheduled for valve: ' + str(self.valve_num))
+        self.valve_thread = threading.Timer(10, self.startSimulation)
+        self.valve_thread.start()
 
     def startSimulation(self):
         global start_time
         start_time=time.time()
         print('simulation started for valve: ' + str(self.valve_num))
-        threading.Timer(5, self.pour_drink).start()
+        self.valve_thread = threading.Timer(5, self.pour_drink)
+        self.valve_thread.start()
+        
+    def cancel_valve(self):
+        self.CANCELED_FLAG=1
+        print('canceling for valve: ' + str(self.valve_num))
+        print(self.valve_thread)
+        self.valve_thread.cancel()

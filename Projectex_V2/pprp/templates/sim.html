@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block content %}
 
-	<body>
+	<body id="yeet">
 		<br>
 		<h1> <b>Simulation Statistics</b> </h1>
 		<style>
@@ -18,51 +18,51 @@
 			</tr>
 			<tr id="sstad">
 				<td>Simulation Start Time and Date</td>
-				<td id ="valve1">Row 1 Column 2</td>
-				<td id ="valve2">Row 1 Column 3</td>
-				<td id ="valve3">Row 1 Column 4</td>
+				<td id ="valve1">Row 1 Column 1</td>
+				<td id ="valve2">Row 1 Column 2</td>
+				<td id ="valve3">Row 1 Column 3</td>
 			</tr>
 			<tr id="setad">
 				<td>Simulation End Time and Date</td>
-				<td id ="valve1">Row 1 Column 2</td>
-				<td id ="valve2">Row 1 Column 3</td>
-				<td id ="valve3">Row 1 Column 4</td>
+				<td id ="valve1">Row 2 Column 1</td>
+				<td id ="valve2">Row 2 Column 2</td>
+				<td id ="valve3">Row 2 Column 3</td>
 			</tr>
 			<tr id="tuss">
 				<td>Time Until Simulation Starts</td>
-				<td id ="valve1">Row 1 Column 2</td>
-				<td id ="valve2">Row 1 Column 3</td>
-				<td id ="valve3">Row 1 Column 4</td>
+				<td id ="valve1">Row 3 Column 1</td>
+				<td id ="valve2">Row 3 Column 2</td>
+				<td id ="valve3">Row 3 Column 3</td>
 			</tr>
 			<tr id="tuse">
 				<td>Time Until Simulation Ends</td>
-				<td id ="valve1">Row 1 Column 2</td>
-				<td id ="valve2">Row 1 Column 3</td>
-				<td id ="valve3">Row 1 Column 4</td>
+				<td id ="valve1">Row 4 Column 1</td>
+				<td id ="valve2">Row 4 Column 2</td>
+				<td id ="valve3">Row 4 Column 3</td>
 			</tr>
 			<tr id="tte">
 				<td>Total Time Elapsed</td>
-				<td id ="valve1">Row 1 Column 2</td>
-				<td id ="valve2">Row 1 Column 3</td>
-				<td id ="valve3">Row 1 Column 4</td>
+				<td id ="valve1">Row 5 Column 1</td>
+				<td id ="valve2">Row 5 Column 2</td>
+				<td id ="valve3">Row 5 Column 3</td>
 			</tr>
 			<tr id="tunp">
 				<td>Time Until Next Pour</td>
-				<td id ="valve1">Row 1 Column 2</td>
-				<td id ="valve2">Row 1 Column 3</td>
-				<td id ="valve3">Row 1 Column 4</td>
+				<td id ="valve1">Row 6 Column 1</td>
+				<td id ="valve2">Row 6 Column 2</td>
+				<td id ="valve3">Row 6 Column 3</td>
 			</tr>
 			<tr id="nodp">
 				<td>Number of Drinks Poured</td>
-				<td id ="valve1">Row 1 Column 2</td>
-				<td id ="valve2">Row 1 Column 3</td>
-				<td id ="valve3">Row 1 Column 4</td>
+				<td id ="valve1">Row 7 Column 1</td>
+				<td id ="valve2">Row 7 Column 2</td>
+				<td id ="valve3">Row 7 Column 3</td>
 			</tr>
 			<tr id="vodp">
 				<td>Volume of Drinks Poured</td>
-				<td id ="valve1">Row 1 Column 2</td>
-				<td id ="valve2">Row 1 Column 3</td>
-				<td id ="valve3">Row 1 Column 4</td>
+				<td id ="valve1">Row 8 Column 1</td>
+				<td id ="valve2">Row 8 Column 2</td>
+				<td id ="valve3">Row 8 Column 3</td>
 			</tr>
 			<tr id="tvrik">
 				<td>Total Volume Remaining in Keg</td>
@@ -203,7 +203,7 @@
 							document.getElementById("keg_stats_h").rows.namedItem("drinks_total").cells.namedItem(valve_num).innerHTML = parseThis.drinks_total;
 							document.getElementById("keg_stats_h").rows.namedItem("drinks_poured").cells.namedItem(valve_num).innerHTML = parseThis.drinks_poured;
 							document.getElementById("keg_stats_h").rows.namedItem("SCHEDULED_CHECK").cells.namedItem(valve_num).innerHTML = parseThis.SCHEDULED_CHECK;
-							document.getElementById("keg_stats_h").rows.namedItem("START_CHECK").cells.namedItem(valve_num).innerHTML = parseThis.START_CHECK;
+							document.getElementById("keg_stats_h").rows.namedItem("START_CHECK").cells.namedItem(valve_num).innerHTML = parseThis.START_CHECK;	
 							document.getElementById("keg_stats_h").rows.namedItem("tadonp").cells.namedItem(valve_num).innerHTML = parseThis.datetime_of_next_pour;
 							if(parseThis.SCHEDULED_CHECK==1){
 								document.getElementById("keg_stats").rows.namedItem("nodp").cells.namedItem(valve_num).innerHTML = parseThis.drinks_poured + " of " + parseThis.drinks_total + "  (" + parseThis.drinks + " per day)";
@@ -252,12 +252,17 @@
 					document.getElementById("keg_stats").rows.namedItem("tvrik").cells.namedItem("keg").innerHTML = "N/A";
 					document.getElementById("keg_stats").rows.namedItem("nodp").cells.namedItem(valve_num).innerHTML = "N/A";
 					document.getElementById("keg_stats").rows.namedItem("vodp").cells.namedItem(valve_num).innerHTML = "N/A";
-					document.getElementById("keg_stats").rows.namedItem("etadkwe").cells.namedItem("keg").innerHTML = "Simulation Not Scheduled";	
+					document.getElementById("keg_stats").rows.namedItem("etadkwe").cells.namedItem("keg").innerHTML = "Simulation Not Scheduled";
 				}
 			}
 			if(at_least_one_sim_started == 1){
 					var emptyKegDatetime = convertDatetime({{ static_values.datetime_keg_empties|tojson }})
-					document.getElementById("keg_stats").rows.namedItem("etadkwe").cells.namedItem("keg").innerHTML = formatAMPM(emptyKegDatetime);
+					maxDate = new Date("Wed Jan 01 3000 12:30:00");
+					if(emptyKegDatetime.getTime() !== maxDate.getTime()){
+						document.getElementById("keg_stats").rows.namedItem("etadkwe").cells.namedItem("keg").innerHTML = formatAMPM(emptyKegDatetime);
+					}else{
+						document.getElementById("keg_stats").rows.namedItem("etadkwe").cells.namedItem("keg").innerHTML = "Keg Will Not Empty";
+					}
 			}
 			
 			// TIMER FUNCTION

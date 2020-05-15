@@ -1,59 +1,71 @@
 from flask import render_template, url_for, flash, redirect, Flask, request, jsonify
 from pprp import app
 import requests
-from pprp.forms import KegeratorForm
+from pprp.forms import KegeratorForm, MiscForm
 import datetime
 import operations
+import password
 
 import RPi.GPIO as GPIO
 import time
+
+password_check = password.password
 
 op1 = operations.Operations(17, 18) #passing in the flow meter GPIO and valve GPIO
 op2 = operations.Operations(27, 23) #passing in the flow meter GPIO and valve GPIO
 op3 = operations.Operations(22, 24) #passing in the flow meter GPIO and valve GPIO
 number_of_valves = 3;
+stephens_link = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
+brads_link = 'https://www.linkedin.com/in/brad-johnson-684a25149/'
 posts = [
     {
         'author': 'Stephen Spade',
         'title': 'Website Created',
         'content': 'Primitive website design has been implemented.',
-        'date_posted': 'March 16, 2020'
+        'date_posted': 'March 16, 2020',
+        'link': stephens_link
     },
     {
         'author': 'Stephen Spade',
         'title': 'LED Lights Up',
         'content': 'An LED connected to the raspberry pi has been successfully been lit up using the website',
-        'date_posted': 'March 18, 2020'
+        'date_posted': 'March 18, 2020',
+        'link': stephens_link
     },
     {
         'author': 'Brad Johnson',
         'title': 'User Input',
         'content': 'The website now successfully takes user input for specifying the parameters for the automation simulation',
-        'date_posted': 'April 9, 2020'
+        'date_posted': 'April 9, 2020',
+        'link': brads_link
     },
     {
         'author': 'Brad Johnson',
         'title': 'Project Code Implemented in Website',
         'content': 'The website now successfully implements the code needed for providing a bar-like environment for the kegerator',
-        'date_posted': 'April 11, 2020'
+        'date_posted': 'April 11, 2020',
+        'link': brads_link
     },
     {
         'author': 'Brad Johnson',
         'title': 'Simulation Statistics',
         'content': 'The website now displays the relevant information regarding the simulation and displays it to the user',
-        'date_posted': 'April 16, 2020'
+        'date_posted': 'April 16, 2020',
+        'link': brads_link
     },
     {
         'author': 'Stephen Spade',
         'title': 'Password Protection & Website Design Update',
         'content': 'Accessing the kegerator controls requires a password to be input & Website has been polished',
-        'date_posted': 'April 17, 2020'
+        'date_posted': 'April 17, 2020',
+        'link': stephens_link
     },
     {
         'author': 'Brad Johnson',
         'title': 'Created option to use 1-3 valves',
         'content': 'The website now works with 3 valves',
-        'date_posted': 'May 9, 2020'
+        'date_posted': 'May 9, 2020',
+        'link': brads_link
     }
 ]
 
@@ -62,6 +74,31 @@ posts = [
 @app.route("/home")
 def home():
     return render_template('home.html', posts=posts)
+
+@app.route("/misc", methods=['GET', 'POST'])
+def misc():
+    global password_check
+    form = MiscForm()
+    if form.validate_on_submit():
+        if(form.valve_1_check_new.data == True):
+            op1.cancel_simulation()
+        if(form.valve_2_check_new.data == True):
+            op2.cancel_simulation()
+        if(form.valve_3_check_new.data == True):
+            op3.cancel_simulation()
+        if(form.volume_of_keg_new.data != None):
+            operations.volume_of_keg = form.volume_of_keg_new.data
+            operations.volume_of_keg_remaining = form.volume_of_keg_new.data
+            
+        operations.calculate_dtke(op1,op2,op3);
+        flash('Input has been uploaded to Automated Kegerator','success')
+        return redirect(url_for('simulation'))
+    elif request.method == 'POST':
+        if (form.password.data != password_check): #If incorrect password
+            flash('ERROR: Incorrect Password','danger')
+        if (form.volume_of_keg_new.data <0): #If incorrect password
+            flash('ERROR: Keg Volume Must be Positive','danger')
+    return render_template('misc.html', form=form)
 
 @app.route("/simulation")
 def simulation():
@@ -80,9 +117,9 @@ def simulation():
 
 @app.route("/ac", methods=['GET', 'POST'])
 def ac():
+    global password_check
     form = KegeratorForm()
     if form.validate_on_submit():
-        print("valid submission")
         if(form.valve_1_check.data == True):
             op1.schedule_simulation(form)
         if(form.valve_2_check.data == True):
@@ -111,7 +148,7 @@ def ac():
             print form.valve_2_check.data
             print form.valve_3_check.data
             flash('ERROR: At least one valve must be checked','danger')
-        if (form.password.data != 'dixon'): #If incorrect password
+        if (form.password.data != password_check): #If incorrect password
             flash('ERROR: Incorrect Password','danger')
 
     return render_template('ac.html', form=form)

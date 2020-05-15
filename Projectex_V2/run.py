@@ -1,8 +1,8 @@
 from pprp import app
 import socket
 import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+from email.MIMEMultipart import MIMEMultipart
+from email.MIMEText import MIMEText
 import os.path
 import emailinformation
 
@@ -14,29 +14,24 @@ def get_ip_address():
  s.close()
  return ip_address
 
-email = emailinformation.piemail
-password = emailinformation.pipassword
-send_to_email = emailinformation.myemail
-subject = 'Raspberry Pi IP Adress and Port Number'
-ip = get_ip_address()
-message = 'The URL is %s:8000' % (ip)
+fromaddr = emailinformation.piemail
+toaddr = emailinformation.email_list
+myPassword = emailinformation.pipassword
 
 msg = MIMEMultipart()
-msg['From'] = email
-msg['To'] = send_to_email
-msg['Subject'] = subject
-
-msg.attach(MIMEText(message,'plain'))
-
-server = smtplib.SMTP('smtp.gmail.com',587)
-server.ehlo()
+msg['From'] = fromaddr
+msg['To'] = ','.join(toaddr)
+msg['Subject'] = 'Raspberry Pi IP Adress and Port Number'
+ip = get_ip_address()
+body = 'The URL is %s:8000' % (ip)
+msg.attach(MIMEText(body, 'plain'))
+server = smtplib.SMTP('smtp.gmail.com', 587)
 server.starttls()
-server.login(email,password)
+server.login(fromaddr, myPassword)
 text = msg.as_string()
-server.sendmail(email,send_to_email,text) #will show up in spam, mark as not spam
-#for another person server.sendmail(email,send_to_email,text) #will show up in spam, mark as not spam
+server.sendmail(fromaddr, toaddr, text)
+server.quit()
 
-server.close()
 
 if __name__ == "__main__":
     app.run(debug=True, host=get_ip_address(), port=8000)

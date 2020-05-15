@@ -4,6 +4,7 @@ import time
 import copy
 import math
 import RPi.GPIO as GPIO
+from bs4 import BeautifulSoup
 
 GPIO.setmode(GPIO.BCM)
 sem = threading.Semaphore()
@@ -20,6 +21,7 @@ class Operations:
 		self.pulse = self.max_pulse
 		self.update_flag = 0
 		self.constant = 6.8
+		self.valve_thread = 0
 		self.keg_stuff = {
 			'start_date_sim': datetime.date(2000,1,1),
 			'end_date_sim': datetime.date(2000,1,1),
@@ -28,7 +30,7 @@ class Operations:
 			'start_datetime_day': datetime.datetime(2020,1,1,0,0,0),	#start datetime of operation using correct start date and start time
 			'end_of_start_datetime_day': datetime.datetime(2020,1,1,0,0,0),		#end datetime of operation using start,yes start, date and end time
 			'end_datetime_day': datetime.datetime(2020,1,1,0,0,0),	#end datetime of operation using end date and end time
-			'datetime_of_next_pour': datetime.datetime(2020,1,1,0,0,0),
+			'datetime_of_next_pour': datetime.datetime(3000,1,1,12,30),
 			'drinks': 0,		#number of drinks poured each day
 			'volume_of_drink': 0,	#volume of each drink
 			'pour_time': 5,
@@ -61,7 +63,8 @@ class Operations:
 
 	def start_simulation(self):
 		self.keg_stuff['START_CHECK'] = 1
-		threading.Timer(self.keg_stuff['time_until_next_pour'], self.pour_drink).start()
+		self.valve_thread = threading.Timer(self.keg_stuff['time_until_next_pour'], self.pour_drink)
+		self.valve_thread.start()
 
 
 	def pour_drink(self):
@@ -134,7 +137,8 @@ class Operations:
 		    self.keg_stuff['time_until_next_pour'] = self.keg_stuff['time_between_start_of_drinks'] - total_pour_time
 
 	    if(self.keg_stuff['day']<=self.keg_stuff['days_of_operation']):
-		    threading.Timer(self.keg_stuff['time_until_next_pour'], self.pour_drink).start()
+		    self.valve_thread = threading.Timer(self.keg_stuff['time_until_next_pour'], self.pour_drink)
+		    self.valve_thread.start()
 		    self.keg_stuff['datetime_of_next_pour'] = datetime.datetime.now() + datetime.timedelta(seconds=(self.keg_stuff['time_until_next_pour']))
 	    
 	    time.sleep(2.5)
@@ -157,7 +161,8 @@ class Operations:
 		self.keg_stuff['datetime_of_next_pour'] = self.keg_stuff['start_datetime_day'] + datetime.timedelta(seconds=self.keg_stuff['time_until_next_pour'])    #datetime of first pour
 
 	def schedule_simulation(self,form):
-		global volume_of_keg, volume_of_keg_remaining
+		global volume_of_keg, volume_of_keg_remaining, sem
+		sem.acquire()
 		self.keg_stuff['start_date_sim'] =form.start_date_sim.data
 		self.keg_stuff['end_date_sim'] =form.end_date_sim.data
 		self.keg_stuff['start_time_day'] =form.start_time_day.data
@@ -174,25 +179,56 @@ class Operations:
 
 		self.reset_variables()
 		self.set_variables_for_operation()
-
 		delay = self.keg_stuff['start_datetime_day']-datetime.datetime.now()
-		threading.Timer(delay.total_seconds(), self.start_simulation).start()
+		self.valve_thread = threading.Timer(delay.total_seconds(), self.start_simulation)
+		self.valve_thread.start()
+		sem.release()
 
 	def reset_variables(self):
 		self.keg_stuff['START_CHECK'] = 0
 		self.keg_stuff['day'] = 1
 		self.keg_stuff['drinks_poured'] = 0
 		self.keg_stuff['volume_of_drinks'] = 0
+		
+	def cancel_simulation(self):
+		global sem
+		sem.acquire()
+		if(self.keg_stuff['SCHEDULED_CHECK']==1):
+			self.valve_thread.cancel()
 
+		self.keg_stuff['start_date_sim'] = datetime.date(2000,1,1)
+		self.keg_stuff['end_date_sim'] = datetime.date(2000,1,1)
+		self.keg_stuff['start_time_day'] = datetime.time(0,0,0)
+		self.keg_stuff['end_time_day'] = datetime.time(0,0,0)
+		self.keg_stuff['start_datetime_day'] = datetime.datetime(2020,1,1,0,0,0)		#start datetime of operation using correct start date and start time
+		self.keg_stuff['end_of_start_datetime_day'] = datetime.datetime(2020,1,1,0,0,0)		#end datetime of operation using start,yes start, date and end time
+		self.keg_stuff['end_datetime_day'] = datetime.datetime(2020,1,1,0,0,0)			#end datetime of operation using end date and end time
+		self.keg_stuff['datetime_of_next_pour'] = datetime.datetime(3000,1,1,12,30)
+		self.keg_stuff['drinks'] = 0		#number of drinks poured each day
+		self.keg_stuff['volume_of_drink'] = 0	#volume of each drink
+		self.keg_stuff['pour_time'] = 5
+		self.keg_stuff['time_between_start_of_drinks'] = 0
+		self.keg_stuff['time_until_next_pour'] = 0
+		self.keg_stuff['POURING_CHECK'] = 0
+		self.keg_stuff['SCHEDULED_CHECK'] = 0
+		self.keg_stuff['START_CHECK'] = 0
+		self.keg_stuff['drinks_poured'] = 0	#total number of drinks poured
+		self.keg_stuff['day'] = 1		#what day the simulation is on
+		self.keg_stuff['days_of_operation'] = 0
+		self.keg_stuff['volume_of_drinks'] = 0	#volume of drinks poured
+
+		sem.release()
 
 
 def calculate_dtke(valve1,valve2,valve3):
-	global volume_of_keg,volume_of_keg_remaining,datetime_keg_empties
+	global volume_of_keg,volume_of_keg_remaining,datetime_keg_empties,sem
+	sem.acquire()
 	d_volume_of_keg_remaining=copy.deepcopy(volume_of_keg_remaining)
+	cummulative_vol = 0;
 	
-	dvalve1 = copy.deepcopy(valve1)
-	dvalve2 = copy.deepcopy(valve2)
-	dvalve3 = copy.deepcopy(valve3)
+	dvalve1 = copy.deepcopy(valve1.keg_stuff)
+	dvalve2 = copy.deepcopy(valve2.keg_stuff)
+	dvalve3 = copy.deepcopy(valve3.keg_stuff)
 	dvalves = [dvalve1,dvalve2,dvalve3]
 	
 	current_datetime = datetime.datetime.now();
@@ -201,29 +237,35 @@ def calculate_dtke(valve1,valve2,valve3):
 	while(d_volume_of_keg_remaining>0):
 		nearest_pour_datetime = datetime.datetime(3000,1,1,12,30)
 		for dvalve in dvalves:
-			if((nearest_pour_datetime>dvalve.keg_stuff['datetime_of_next_pour']) and (dvalve.keg_stuff['SCHEDULED_CHECK']==1)):
-				nearest_pour_datetime = dvalve.keg_stuff['datetime_of_next_pour']
-				ddvalve = dvalve
-		
+			cummulative_vol = cummulative_vol + dvalve['volume_of_drink']
+			if((nearest_pour_datetime>=dvalve['datetime_of_next_pour']) and (dvalve['SCHEDULED_CHECK']==1)):
+				nearest_pour_datetime = dvalve['datetime_of_next_pour']
+				ddvalve = dvalve	#ddvalve refers to the valve with the nearest pour datetime
+		if(cummulative_vol<=0):
+			previous_datetime = datetime.datetime(3000,1,1,12,30)
+			break
+		#after next pour (and valve) is located, pour the drink from that valve (ddvalve)
 		previous_datetime = current_datetime
 		#poured drink here
-		current_datetime = ddvalve.keg_stuff['datetime_of_next_pour']
-		print (current_datetime.strftime("%Y-%m-%d %H:%M:%S"))
-		d_volume_of_keg_remaining = d_volume_of_keg_remaining-(ddvalve.keg_stuff['volume_of_drink'])
-		ddvalve.keg_stuff['drinks_poured'] = ddvalve.keg_stuff['drinks_poured'] + 1
-		if(ddvalve.keg_stuff['drinks_poured']/ddvalve.keg_stuff['drinks']>=ddvalve.keg_stuff['day']):
-			ddvalve.keg_stuff['time_until_next_pour'] = (24*60*60-ddvalve.keg_stuff['time_between_start_of_drinks']*(ddvalve.keg_stuff['drinks']-1))
-			ddvalve.keg_stuff['day'] = ddvalve.keg_stuff['day']+1
+		current_datetime = ddvalve['datetime_of_next_pour']
+		
+		#print (current_datetime.strftime("%Y-%m-%d %H:%M:%S"))
+		#print(d_volume_of_keg_remaining)
+		d_volume_of_keg_remaining = d_volume_of_keg_remaining-(ddvalve['volume_of_drink'])
+		ddvalve['drinks_poured'] = ddvalve['drinks_poured'] + 1
+		if(ddvalve['drinks_poured']/ddvalve['drinks']>=ddvalve['day']):
+			ddvalve['time_until_next_pour'] = (24*60*60-ddvalve['time_between_start_of_drinks']*(ddvalve['drinks']-1))
+			ddvalve['day'] = ddvalve['day']+1
 		else:
-			ddvalve.keg_stuff['time_until_next_pour'] = ddvalve.keg_stuff['time_between_start_of_drinks']
+			ddvalve['time_until_next_pour'] = ddvalve['time_between_start_of_drinks']
 
-		if(ddvalve.keg_stuff['day']<=ddvalve.keg_stuff['days_of_operation']):
-			ddvalve.keg_stuff['datetime_of_next_pour'] = current_datetime + datetime.timedelta(seconds=(ddvalve.keg_stuff['time_until_next_pour']))
-		else:
-			ddvalve.keg_stuff['datetime_of_next_pour'] = datetime.datetime(3000,1,1,12,30)
+		if(ddvalve['day']<=ddvalve['days_of_operation']):
+			ddvalve['datetime_of_next_pour'] = current_datetime + datetime.timedelta(seconds=(ddvalve['time_until_next_pour']))
+		else: #simulation is done and will not pour again until re-scheduled
+			ddvalve['datetime_of_next_pour'] = datetime.datetime(3000,1,1,12,30)
 
 	datetime_keg_empties = previous_datetime
-
+	sem.release()
 
 
 
