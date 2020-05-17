@@ -1,4 +1,7 @@
 import threading, time
+import datetime
+import json
+import csv
 
 #POURING_ANY = False
 start_time = time.time()
@@ -15,7 +18,8 @@ class FlowCalculation():
             'pour_check':0,
             'start_check':0,
             'valve_number':self.valve_num,
-            'drinks':13
+            'drinks':12,
+            'datetime_of_next_pour': datetime.datetime(3000,1,1,12,30)
         }
 
     def pour_drink(self):
@@ -58,3 +62,40 @@ class FlowCalculation():
         print('canceling for valve: ' + str(self.valve_num))
         print(self.valve_thread)
         self.valve_thread.cancel()
+        
+    def write_to_csv(self):
+        with open('/home/pi/Desktop/valve_dics.csv', 'w+') as csvfile:
+            fieldnames = ['pour_check', 'start_check', 'valve_number', 'drinks', 'datetime_of_next_pour']
+            writer = csv.DictWriter(csvfile,fieldnames=fieldnames)
+            #writer.writeheader()
+            i = 0
+            for row in enumerate(csvfile):
+                if (i == self.valve_num):
+                    print('modify this line')
+                    #for key, value in self.key_stats.items():
+                     #   writer.writerow([key, value])
+                    writer.writerow(self.keg_stats)
+                else:
+                    print('not in this line')
+            i=i+1
+
+         
+    def shit_write_to_csv(self):
+        with open('/home/pi/Desktop/valve_dics.csv', 'w') as csvfile:
+            fieldnames = ['pour_check', 'start_check', 'valve_number', 'drinks', 'datetime_of_next_pour']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerow(self.keg_stats)
+            writer.writerow(self.keg_stats)
+            writer.writerow(self.keg_stats)
+
+    def set_drink_num(self,number):
+        self.keg_stats['drinks'] = number
+        self.do_the_thing()
+
+    def do_the_thing(self):
+        from testing_code import make_csv_file
+        make_csv_file()
+
+
+

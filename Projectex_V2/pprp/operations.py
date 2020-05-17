@@ -4,6 +4,7 @@ import time
 import copy
 import math
 import RPi.GPIO as GPIO
+import routes
 
 GPIO.setmode(GPIO.BCM)
 sem = threading.Semaphore()
@@ -44,6 +45,7 @@ class Operations:
 			'meter_GPIO': meter_GPIO,
 			'days_of_operation': 0,
 			'volume_of_drinks':0,	#volume of drinks poured
+			'datetime_logged': datetime.datetime.now()
 		}
 		GPIO.setup(valve_GPIO, GPIO.OUT, initial=GPIO.LOW)	#valve setup
 		GPIO.setup(meter_GPIO, GPIO.IN)				#flow meter setup
@@ -140,6 +142,8 @@ class Operations:
 		    self.valve_thread.start()
 		    self.keg_stuff['datetime_of_next_pour'] = datetime.datetime.now() + datetime.timedelta(seconds=(self.keg_stuff['time_until_next_pour']))
 	    
+	    self.keg_stuff['datetime_logged']=datetime.datetime.now()
+	    routes.write_csv_files()
 	    time.sleep(2.5)
             sem.release()
 
@@ -215,6 +219,7 @@ class Operations:
 		self.keg_stuff['day'] = 1		#what day the simulation is on
 		self.keg_stuff['days_of_operation'] = 0
 		self.keg_stuff['volume_of_drinks'] = 0	#volume of drinks poured
+		self.keg_stuff['datetime_logged'] = datetime.datetime.now()
 
 		sem.release()
 

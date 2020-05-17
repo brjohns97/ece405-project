@@ -1,0 +1,296 @@
+{% extends "layout.html" %}
+{% block content %}
+
+	<body id="log_page">
+		<br>
+		<h1> <b>Simulation Log After Most Recent Pour</b> </h1>
+		<style>
+			#main_section{
+				max-width: 1600px;
+			}
+			#keg_stats_log th{
+				background-color: #000000;
+			}
+		</style>
+		<table class="keg_stat_display" id="keg_stats_log">
+			<tr>
+				<th></td>
+				<th>Valve 1</td>
+				<th>Valve 2</td>
+				<th>Valve 3</td>
+			</tr>
+			<tr id="ltad">
+				<td>Log Time and Date</td>
+				<td id ="valve1">Row 1 Column 1</td>
+				<td id ="valve2">Row 1 Column 2</td>
+				<td id ="valve3">Row 1 Column 3</td>
+			</tr>
+			<tr id="sstad">
+				<td>Simulation Start Time and Date</td>
+				<td id ="valve1">Row 2 Column 1</td>
+				<td id ="valve2">Row 2 Column 2</td>
+				<td id ="valve3">Row 2 Column 3</td>
+			</tr>
+			<tr id="setad">
+				<td>Simulation End Time and Date</td>
+				<td id ="valve1">Row 3 Column 1</td>
+				<td id ="valve2">Row 3 Column 2</td>
+				<td id ="valve3">Row 3 Column 3</td>
+			</tr>
+			<tr id="tuss">
+				<td>Time Until Simulation Starts</td>
+				<td id ="valve1">Row 4 Column 1</td>
+				<td id ="valve2">Row 4 Column 2</td>
+				<td id ="valve3">Row 4 Column 3</td>
+			</tr>
+			<tr id="tuse">
+				<td>Time Until Simulation Ends</td>
+				<td id ="valve1">Row 5 Column 1</td>
+				<td id ="valve2">Row 5 Column 2</td>
+				<td id ="valve3">Row 5 Column 3</td>
+			</tr>
+			<tr id="tte">
+				<td>Total Time Elapsed</td>
+				<td id ="valve1">Row 6 Column 1</td>
+				<td id ="valve2">Row 6 Column 2</td>
+				<td id ="valve3">Row 6 Column 3</td>
+			</tr>
+			<tr id="tunp">
+				<td>Time Until Next Pour</td>
+				<td id ="valve1">Row 7 Column 1</td>
+				<td id ="valve2">Row 7 Column 2</td>
+				<td id ="valve3">Row 7 Column 3</td>
+			</tr>
+			<tr id="nodp">
+				<td>Number of Drinks Poured</td>
+				<td id ="valve1">Row 8 Column 1</td>
+				<td id ="valve2">Row 8 Column 2</td>
+				<td id ="valve3">Row 8 Column 3</td>
+			</tr>
+			<tr id="vodp">
+				<td>Volume of Drinks Poured</td>
+				<td id ="valve1">Row 9 Column 1</td>
+				<td id ="valve2">Row 9 Column 2</td>
+				<td id ="valve3">Row 9 Column 3</td>
+			</tr>
+			<tr id="tvrik">
+				<td>Total Volume Remaining in Keg</td>
+				<td id ="keg" colspan="3" style="text-align: center;">Probably Enough</td>
+			</tr>
+			<tr id="etadkwe">
+				<td>Estimated Time and Date Keg Will Empty</td>
+				<td id ="keg" colspan="3" style="text-align: center;">Good Question</td>
+			</tr>
+		</table>
+		
+		<p><br></p>
+		
+		<table class="keg_stat_display" id="keg_stats_log_h" style="display:none;">
+			<tr>
+				<th></td>
+				<th>Valve 1</td>
+				<th>Valve 2</td>
+				<th>Valve 3</td>
+			</tr>
+			<tr id="POURING_CHECK">
+				<td>Pouring Check</td>
+				<td id ="valve1"></td>
+				<td id ="valve2"></td>
+				<td id ="valve3"></td>
+			</tr>
+			<tr id="START_CHECK">
+				<td>Start Check</td>
+				<td id ="valve1"></td>
+				<td id ="valve2"></td>
+				<td id ="valve3"></td>
+			</tr>
+			<tr id="SCHEDULED_CHECK">
+				<td>Schedule Check</td>
+				<td id ="valve1"></td>
+				<td id ="valve2"></td>
+				<td id ="valve3"></td>
+			</tr>
+			<tr id="tadonp">
+				<td>Time and Date of Next Pour</td>
+				<td id ="valve1"></td>
+				<td id ="valve2"></td>
+				<td id ="valve3"></td>
+			</tr>
+			<tr id="drinks_poured">
+				<td>Drinks Poured</td>
+				<td id ="valve1"></td>
+				<td id ="valve2"></td>
+				<td id ="valve3"></td>
+			</tr>
+			<tr id="drinks_total">
+				<td>Drinks Total</td>
+				<td id ="valve1"></td>
+				<td id ="valve2"></td>
+				<td id ="valve3"></td>
+			</tr>
+		</table>
+
+
+		<script>
+			// -------------------- LIST OF FUNCTIONS --------------------
+			function formatAMPM(datetime) {
+				//var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Augt", "Sept", "Oct", "Nov", "Dec"];
+				var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+				var days = ["Sun", "Mon", "Tues", "Wed", "Thurs", "Fri", "Sat"];
+
+				var year = datetime.getFullYear();
+				var month = datetime.getMonth();
+				var date = datetime.getDate();
+				var day = datetime.getDay();
+				var hours = datetime.getHours();
+				var minutes = datetime.getMinutes();
+				
+				var ampm = hours >= 12 ? 'PM' : 'AM';
+				hours = hours % 12;
+				hours = hours ? hours : 12; // the hour '0' should be '12'
+				minutes = minutes < 10 ? '0'+minutes : minutes;
+				var strTime = days[day] + ', ' + months[month] + ' ' + date + ', ' + year + ' at ' + hours + ':' + minutes + ampm;
+				return strTime;
+			}
+
+			function getTimeRemainingOrElapsed(endtime,starttime) {
+				// Find the distance between now and the count down date
+				var distance = endtime - starttime;
+				// Time calculations for days, hours, minutes and seconds
+				var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+				var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+				var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+				var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+				if(days>0){
+					var output = days + "days " + hours + "hrs " + minutes + "min " + seconds + "sec ";
+				}else if(hours>0){
+					var output = hours + "hrs " + minutes + "min " + seconds + "sec ";
+				}else if(minutes>0){
+					var output = minutes + "min " + seconds + "sec ";
+				}else{
+					var output = seconds + "sec ";
+				}
+				return {
+					'output':  output,
+					'total': distance,
+					'days': days,
+					'hours': hours,
+					'minutes': minutes,
+					'seconds': seconds
+				};
+			}
+			
+			function convertDatetime(input) {
+				// Find the distance between now and the count down date
+				var output = new Date(input+' UTC')
+				output = new Date(output.getTime() + 60000*output.getTimezoneOffset())
+				return output;
+			}
+			
+			
+			// -------------------- START OF PASSING AND CALCULATING VARIABLES --------------------
+			
+			// -------------------- PASS IN STATIC VALUES UPON PAGE LOAD --------------------
+			var at_least_one_sim_started = 0;
+			for(i=1; i<={{log_values.num_of_valves|tojson}}; i++){
+				switch(i){
+					case 1:
+						valve_num = "valve1";
+						valve_log_values = {{ log_values.valve1|tojson }};
+						break;
+					case 2:
+						valve_num = "valve2";
+						valve_log_values = {{ log_values.valve2|tojson }};
+						break;
+					case 3:
+						valve_num = "valve3";
+						valve_log_values = {{ log_values.valve3|tojson }};
+						break;
+				}
+				if(valve_log_values.SCHEDULED_CHECK==1){
+					// static values
+					document.getElementById("keg_stats_log").rows.namedItem("ltad").cells.namedItem(valve_num).innerHTML = formatAMPM(convertDatetime(valve_log_values.datetime_logged));
+					document.getElementById("keg_stats_log").rows.namedItem("sstad").cells.namedItem(valve_num).innerHTML = formatAMPM(convertDatetime(valve_log_values.start_datetime_day));
+					document.getElementById("keg_stats_log").rows.namedItem("setad").cells.namedItem(valve_num).innerHTML = formatAMPM(convertDatetime(valve_log_values.end_datetime_day));	
+					// import start date and time, then adjust for time-zone
+					var countDownToStart = convertDatetime(valve_log_values.start_datetime_day)
+					var countDownToPour = convertDatetime(valve_log_values.datetime_of_next_pour)
+					var countDownToEnd = convertDatetime(valve_log_values.end_datetime_day)
+
+					// calculate and return days, hours, minutes, and seconds
+					var now = convertDatetime(valve_log_values.datetime_logged)
+					var sc_v = getTimeRemainingOrElapsed(countDownToStart,now);
+					var tunp_v = getTimeRemainingOrElapsed(countDownToPour,now);
+					var tue_v = getTimeRemainingOrElapsed(countDownToEnd,now);
+					var rt_v = getTimeRemainingOrElapsed(now,countDownToStart);
+					
+					// displaying time until simulation starts 
+					if(valve_log_values.START_CHECK==0){
+						document.getElementById("keg_stats_log").rows.namedItem("tuss").cells.namedItem(valve_num).innerHTML = sc_v.output;
+					}else if(tue_v.total<=0){
+						document.getElementById("keg_stats_log").rows.namedItem("tuss").cells.namedItem(valve_num).innerHTML = "Simulation Has Ended";
+					}else{
+						document.getElementById("keg_stats_log").rows.namedItem("tuss").cells.namedItem(valve_num).innerHTML = "Simulation Started";
+					}
+						
+					// displaying time until simulation ends
+					if(tue_v.total>=0){
+						document.getElementById("keg_stats_log").rows.namedItem("tuse").cells.namedItem(valve_num).innerHTML = tue_v.output
+					}else{
+						document.getElementById("keg_stats_log").rows.namedItem("tuse").cells.namedItem(valve_num).innerHTML = "Simulation Has Ended"
+					}
+
+					// displaying the total time elapsed
+					if(tue_v.total>0){
+						document.getElementById("keg_stats_log").rows.namedItem("tte").cells.namedItem(valve_num).innerHTML = rt_v.output;
+					}else{
+						var last_runtime = getTimeRemainingOrElapsed(countDownToEnd,countDownToStart);
+						document.getElementById("keg_stats_log").rows.namedItem("tte").cells.namedItem(valve_num).innerHTML = last_runtime.output
+					}
+					
+					// displaying time until next pour
+					if(tue_v.total<=0){
+						document.getElementById("keg_stats_log").rows.namedItem("tunp").cells.namedItem(valve_num).innerHTML = "Simulation Has Ended";
+					}else if(valve_log_values.drinks*valve_log_values.days_of_operation==valve_log_values.drinks_poured){
+						document.getElementById("keg_stats_log").rows.namedItem("tunp").cells.namedItem(valve_num).innerHTML = "All drinks poured";
+					}else{
+						document.getElementById("keg_stats_log").rows.namedItem("tunp").cells.namedItem(valve_num).innerHTML = tunp_v.output;
+					}
+
+					document.getElementById("keg_stats_log").rows.namedItem("nodp").cells.namedItem(valve_num).innerHTML = valve_log_values.drinks_poured + " of " + valve_log_values.drinks*valve_log_values.days_of_operation + "  (" + valve_log_values.drinks + " per day)";
+					document.getElementById("keg_stats_log").rows.namedItem("vodp").cells.namedItem(valve_num).innerHTML = Math.round(valve_log_values.volume_of_drinks*10)/10 + "oz of " + (valve_log_values.volume_of_drink*valve_log_values.drinks*valve_log_values.days_of_operation)+ "oz" + "  (" + valve_log_values.volume_of_drink + "oz per drink)";
+					at_least_one_sim_started = 1;
+					
+
+
+				}else{
+					// static values
+					document.getElementById("keg_stats_log").rows.namedItem("ltad").cells.namedItem(valve_num).innerHTML = "Simulation Not Scheduled";
+					document.getElementById("keg_stats_log").rows.namedItem("sstad").cells.namedItem(valve_num).innerHTML = "Simulation Not Scheduled";
+					document.getElementById("keg_stats_log").rows.namedItem("setad").cells.namedItem(valve_num).innerHTML = "Simulation Not Scheduled";
+					document.getElementById("keg_stats_log").rows.namedItem("tuss").cells.namedItem(valve_num).innerHTML = "Simulation Not Scheduled";
+					document.getElementById("keg_stats_log").rows.namedItem("tuse").cells.namedItem(valve_num).innerHTML = "Simulation Not Scheduled";
+					document.getElementById("keg_stats_log").rows.namedItem("tte").cells.namedItem(valve_num).innerHTML = "Simulation Not Scheduled";
+					document.getElementById("keg_stats_log").rows.namedItem("tunp").cells.namedItem(valve_num).innerHTML = "Simulation Not Scheduled";
+					document.getElementById("keg_stats_log").rows.namedItem("nodp").cells.namedItem(valve_num).innerHTML = "N/A";
+					document.getElementById("keg_stats_log").rows.namedItem("vodp").cells.namedItem(valve_num).innerHTML = "N/A";
+					document.getElementById("keg_stats_log").rows.namedItem("tvrik").cells.namedItem("keg").innerHTML = "N/A";
+					document.getElementById("keg_stats_log").rows.namedItem("etadkwe").cells.namedItem("keg").innerHTML = "Simulation Not Scheduled";
+				}
+			}
+			if(at_least_one_sim_started == 1){
+				var emptyKegDatetime = convertDatetime({{ log_values.datetime_keg_empties|tojson }})
+				maxDate = new Date("Wed Jan 01 3000 12:30:00");
+				if(emptyKegDatetime.getTime() !== maxDate.getTime()){
+					document.getElementById("keg_stats_log").rows.namedItem("etadkwe").cells.namedItem("keg").innerHTML = formatAMPM(emptyKegDatetime);
+				}else{
+					document.getElementById("keg_stats_log").rows.namedItem("etadkwe").cells.namedItem("keg").innerHTML = "Keg Will Not Empty";
+				}
+				document.getElementById("keg_stats_log").rows.namedItem("tvrik").cells.namedItem("keg").innerHTML = Math.round({{log_values.volume_of_keg_remaining|tojson}}*10)/10 + "oz of " + Math.round({{log_values.volume_of_keg|tojson}}*10)/10 + "oz = " + Math.round(({{log_values.volume_of_keg_remaining|tojson}}/{{log_values.volume_of_keg|tojson}})*10000)/100 + "%"
+			}
+
+		</script>
+	</body>
+
+
+{% endblock content %}

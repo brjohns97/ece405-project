@@ -173,7 +173,7 @@
 			
 			function convertDatetime(input) {
 				// Find the distance between now and the count down date
-				var output = new Date(input)
+				var output = new Date(input+' UTC')
 				output = new Date(output.getTime() + 60000*output.getTimezoneOffset())
 				return output;
 			}

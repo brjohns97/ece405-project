@@ -1,0 +1,4 @@
+start_date_sim,end_date_sim,start_time_day,end_time_day,start_datetime_day,end_of_start_datetime_day,end_datetime_day,datetime_of_next_pour,drinks,volume_of_drink,pour_time,time_between_start_of_drinks,time_until_next_pour,POURING_CHECK,SCHEDULED_CHECK,START_CHECK,drinks_poured,day,valve_GPIO,meter_GPIO,days_of_operation,volume_of_drinks,datetime_logged
+2020-05-16,2020-05-22,11:15:00,11:20:00,2020-05-16 11:15:00,2020-05-16 11:20:00,2020-05-22 11:20:00,2020-05-17 11:15:30.013202,5,12.0,5,60.0,86154.99493288994,0,1,1,5,2,18,17,7,0,2020-05-16 11:19:35.018391
+2020-05-16,2020-05-22,11:15:00,11:20:00,2020-05-16 11:15:00,2020-05-16 11:20:00,2020-05-22 11:20:00,2020-05-17 11:15:45.045977,5,12.0,5,60.0,86154.99491906166,0,1,1,5,2,23,27,7,0,2020-05-16 11:19:50.051151
+2020-05-16,2020-05-23,11:16:00,11:30:00,2020-05-16 11:16:00,2020-05-16 11:30:00,2020-05-23 11:30:00,2020-05-17 11:16:37.553848,14,10.0,5,60.0,85614.99494481087,0,1,1,14,2,24,22,8,0,2020-05-16 11:29:42.559026
